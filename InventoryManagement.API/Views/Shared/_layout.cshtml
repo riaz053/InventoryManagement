@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Inventory System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+            body {
+                margin: 0;
+                font-family: Arial;
+            }
+
+            .sidebar {
+                width: 240px;
+                height: 100vh;
+                position: fixed;
+                background: #1f2937;
+                color: white;
+                padding-top: 20px;
+                transition: all 0.3s ease;
+            }
+
+            .sidebar.hide {
+                margin-left: -240px;
+            }
+
+            .sidebar h4 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .sidebar a {
+                display: block;
+                padding: 12px 20px;
+                color: white;
+                text-decoration: none;
+            }
+
+            .sidebar a:hover {
+                background: #374151;
+            }
+
+            .content {
+                margin-left: 240px;
+                padding: 20px;
+                transition: all 0.3s ease;
+            }
+
+            .content.full {
+                margin-left: 0;
+            }
+
+            .topbar {
+                background: #f3f4f6;
+                padding: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .toggle-btn {
+                cursor: pointer;
+                padding: 5px 10px;
+                background: #111827;
+                color: white;
+                border: none;
+                border-radius: 4px;
+            }
+
+            .sidebar-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 15px;
+            }
+
+            .sidebar-header h4 {
+                margin: 0;
+            }
+
+            /* Toggle button style */
+            .toggle-btn {
+                background: transparent;
+                border: none;
+                color: white;
+                font-size: 20px;
+                cursor: pointer;
+            }
+
+            .floating-btn {
+                position: fixed;
+                top: 15px;
+                left: 10px;
+                background: #111827;
+                color: white;
+                border: none;
+                padding: 8px 10px;
+                font-size: 18px;
+                border-radius: 5px;
+                display: none;
+                cursor: pointer;
+                z-index: 9999;
+            }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header row m-0">
+            <div class="col-md-10 m-0">
+                <h4>Inventory</h4>
+            </div>
+            <div class="col-md-2 m-0">
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Toggle Menu">
+                    ☰
+                </button>
+            </div>
+        </div>
+        <a href="/Home">Dashboard</a>
+
+        <!-- USERS -->
+        @if (User.IsInRole("Admin"))
+        {
+            <a href="/Users">Users</a>
+            <a href="/Roles">Roles</a>
+        }
+
+        <!-- PRODUCT -->
+        @if (User.IsInRole("Admin") || User.IsInRole("ProductUser"))
+        {
+            <a href="/Product">Product</a>
+        }
+
+        <!-- SALES -->
+        @if (User.IsInRole("Admin") || User.IsInRole("SalesUser"))
+        {
+            <a href="/Sales">Sales</a>
+        }
+
+        <a href="/Auth/Logout">Logout</a>
+
+    </div>
+
+    <button id="floatingToggle" class="floating-btn" onclick="toggleSidebar()" title="Show Menu">
+        ☰
+    </button>
+
+    <!-- MAIN CONTENT -->
+    <div id="content" class="content">
+
+        <div class="topbar">
+            <div>
+                Welcome, @User.Identity.Name
+            </div>
+        </div>
+
+        <div style="margin-top:20px;">
+            @RenderBody()
+        </div>
+
+    </div>
+
+    <script>
+            function toggleSidebar() {
+                const sidebar = document.getElementById("sidebar");
+                const content = document.getElementById("content");
+                const floatingBtn = document.getElementById("floatingToggle");
+
+                sidebar.classList.toggle("hide");
+                content.classList.toggle("full");
+
+                // show floating button when sidebar hidden
+                if (sidebar.classList.contains("hide")) {
+                    floatingBtn.style.display = "block";
+                } else {
+                    floatingBtn.style.display = "none";
+                }
+            }
+    </script>
+
+</body>
+
+</html>

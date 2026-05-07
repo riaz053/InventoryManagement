@@ -1,0 +1,19 @@
+{
+  "Version": 1,
+  "Hash": "6l/kp47VAX0Vh4COzCcNdwvJtfpvTgeM8O3QICEmS7M=",
+  "Source": "InventoryManagement.API",
+  "BasePath": "_content/InventoryManagement.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "InventoryManagement.API\\wwwroot",
+      "Source": "InventoryManagement.API",
+      "ContentRoot": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\",
+      "BasePath": "_content/InventoryManagement.API",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": []
+}
