@@ -1,6 +1,6 @@
 namespace InventoryManagement.API.Models
 {
-    public class UserRole
+    public class UserRoles
     {
         public int Id { get; set; }
 
@@ -10,6 +10,4 @@ namespace InventoryManagement.API.Models
         public int RoleId { get; set; }
         public Role Role { get; set; }
     }
-
 }
-

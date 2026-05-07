@@ -1,0 +1,271 @@
+@{
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/site.css" />
+
+<div id="alertBox" class="alert alert-success d-none" role="alert">
+</div>
+<h2 class="mb-3">Users Management</h2>
+
+<div class="row">
+
+    <!-- CREATE USER -->
+    <div class="col-md-4">
+
+        <div class="card p-3 shadow">
+
+            <h5>Create User</h5>
+
+            <input type="hidden" id="userId" value="0" />
+            
+            <input type="text" id="username" class="form-control mb-2" placeholder="Username" />
+
+            <input type="password" id="password" class="form-control mb-2" placeholder="Password" />
+
+            <select id="roleId" class="form-control mb-2">
+                <option value="">Loading roles...</option>
+            </select>
+
+            <button class="btn btn-primary w-50" onclick="createUser()">
+                Create User
+            </button>
+            <button class="btn btn-outline-info w-50" onclick="updateUser()">
+                Update User
+            </button>
+
+            <p id="msg" class="mt-2 text-success"></p>
+
+        </div>
+
+    </div>
+
+    <!-- USER LIST -->
+    <div class="col-md-8">
+
+        <div class="card p-3 shadow">
+
+            <h5>User List</h5>
+
+            <table class="table table-bordered table-striped mt-2">
+
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="userTable"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    // ==========================
+    // LOAD ROLES
+    // ==========================
+    async function loadRoles() {
+        const res = await fetch('/api/RolesApi');
+        const data = await res.json();
+
+        //console.log(data);
+
+        let html = `<option value="">Select Role</option>`;
+
+        data.forEach(r => {
+            html += `<option value="${r.id}">${r.rName}</option>`;
+            //console.log(r.rName);
+        });
+
+        document.getElementById("roleId").innerHTML = html;
+    }
+
+    // ==========================
+    // LOAD USERS
+    // ==========================
+    async function loadUsers() {
+        clearForm();
+        const res = await fetch('/api/UsersApi');
+        const data = await res.json();
+
+        let html = "";
+
+
+        //console.log(data);
+
+        data.forEach(u => {
+
+            let role = "No Role";
+
+            //console.log(u.role);
+            //console.log(u.userRoles);
+
+
+            if (u.role && u.role.length > 0) {
+                //role = u.role[0].role.name;
+                role = u.role;
+            }
+
+            html += `
+                    <tr onclick='selectUser(this)'
+                        data-id="${u.id}"
+                        data-username="${u.username}"
+                        data-password="${u.password || ""}"
+                        data-roleid="${u.roleId}"
+                        data-role="${u.role}">
+
+                        <td>${u.username}</td>
+                        <td>${u.role}</td>
+                        <td>${u.isActive ? "Active" : "Inactive"}</td>
+
+                    </tr>`;
+        });
+
+        document.getElementById("userTable").innerHTML = html;
+    }
+
+    // ==========================
+    // CREATE USER
+    // ==========================
+  
+    async function createUser() {
+
+        const data = {
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value,
+            roleId: parseInt(document.getElementById("roleId").value)
+        };
+
+        const res = await fetch('/api/UsersApi/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            document.getElementById("msg").style.color = "green";
+            document.getElementById("msg").innerText = result.message;
+            loadUsers();
+        }
+        else {
+            document.getElementById("msg").style.color = "red";
+            document.getElementById("msg").innerText = result.message;
+        }
+
+        if (res.ok) {
+
+            showAlert(result.message, "success");
+
+            loadUsers();
+        }
+        else {
+            showAlert(result.message, "danger");
+        }
+    }
+        
+    function selectUser(row) {
+
+        document.getElementById("userId").value = row.dataset.id;
+
+        document.getElementById("username").value = row.dataset.username;
+
+        document.getElementById("password").value = row.dataset.password;
+
+        //console.log(user);
+        document.getElementById("roleId").value = row.dataset.roleid;
+
+        // disable username editing
+        document.getElementById("username").disabled = true;
+
+        @* if (user.role && user.role.length > 0) {
+
+            document.getElementById("roleId").value =
+                user.role[0].roleId;
+        } *@
+    }
+
+    function clearForm() {
+
+        document.getElementById("userId").value = 0;
+
+        document.getElementById("username").value = "";
+
+        document.getElementById("password").value = "";
+
+        document.getElementById("roleId").value = "";
+
+        // enable username again
+        document.getElementById("username").disabled = false;
+    }
+
+    function showAlert(message, type = "success") {
+
+        const alertBox = document.getElementById("alertBox");
+
+        alertBox.className = `alert alert-${type}`;
+        alertBox.innerText = message;
+
+        alertBox.classList.remove("d-none");
+
+        // auto hide after 3 seconds
+        setTimeout(() => {
+            alertBox.classList.add("d-none");
+        }, 3000);
+    }
+
+    async function updateUser() {
+
+        const userId = parseInt(document.getElementById("userId").value);
+
+        if (userId <= 0) {
+            showAlert("Please select a user first", "warning");
+            return;
+        }
+
+        const data = {
+            id: userId,
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value,
+            roleId: parseInt(document.getElementById("roleId").value)
+        };
+
+        const res = await fetch('/api/UsersApi/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            showAlert(result.message || "Updated successfully", "success");
+
+            clearForm();
+            loadUsers();
+        }
+        else {
+            showAlert(result.message || "Update failed", "danger");
+        }
+    }
+    // ==========================
+    // INIT PAGE
+    // ==========================
+    clearForm();
+    loadRoles();
+    loadUsers();
+
+</script>

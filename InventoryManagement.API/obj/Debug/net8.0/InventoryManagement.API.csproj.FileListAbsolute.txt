@@ -126,6 +126,7 @@ E:\InventoryApp\InventoryManagement.API\obj\Debug\net8.0\InventoryManagement.API
 E:\InventoryApp\InventoryManagement.API\obj\Debug\net8.0\InventoryManagement.API.MvcApplicationPartsAssemblyInfo.cache
 E:\InventoryApp\InventoryManagement.API\obj\Debug\net8.0\InventoryManagement.API.RazorAssemblyInfo.cache
 E:\InventoryApp\InventoryManagement.API\obj\Debug\net8.0\InventoryManagement.API.RazorAssemblyInfo.cs
+E:\InventoryApp\InventoryManagement.API\obj\Debug\net8.0\InventoryManagement.API.sourcelink.json
 E:\InventoryApp\InventoryManagement.API\obj\Debug\net8.0\staticwebassets.build.json
 E:\InventoryApp\InventoryManagement.API\obj\Debug\net8.0\staticwebassets.development.json
 E:\InventoryApp\InventoryManagement.API\obj\Debug\net8.0\staticwebassets\msbuild.InventoryManagement.API.Microsoft.AspNetCore.StaticWebAssets.props

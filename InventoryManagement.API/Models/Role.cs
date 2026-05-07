@@ -5,6 +5,6 @@ namespace InventoryManagement.API.Models
         public int Id { get; set; }
         public string rName { get; set; }
 
-        public ICollection<UserRole> UserRoles { get; set; }
+        public ICollection<UserRoles> UserRoles { get; set; }
     }
 }

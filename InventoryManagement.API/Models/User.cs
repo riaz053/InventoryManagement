@@ -7,7 +7,6 @@ namespace InventoryManagement.API.Models
         public string Password { get; set; }
         public bool IsActive { get; set; }
 
-        public ICollection<UserRole> UserRoles { get; set; }
-
+        public ICollection<UserRoles> UserRoles { get; set; }
     }
 }
