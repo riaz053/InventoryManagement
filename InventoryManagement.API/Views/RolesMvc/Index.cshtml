@@ -1,0 +1,215 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<link rel="stylesheet" href="~/css/site.css" />
+
+<div id="alertBox" class="alert d-none" role="alert"></div>
+
+<div class="row">
+
+    <!-- Role Form -->
+    <div class="col-md-4">
+        <div class="card p-3 shadow">
+
+            <h5>Role Entry</h5>
+
+            <input type="hidden" id="roleId" value="0" />
+
+            <div class="mb-3">
+                <label class="form-label">Role Code</label>
+                <input type="text" id="roleCode" class="form-control" disabled />
+                <label class="form-label">Role Name</label>
+                <input type="text" id="roleName" class="form-control" placeholder="Enter role name" />
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-primary flex-fill" onclick="createRole()">
+                    Create Role
+                </button>
+
+                <button type="button" class="btn btn-outline-info flex-fill" onclick="updateRole()">
+                    Update Role
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Role List -->
+    <div class="col-md-8">
+        <div class="card p-3 shadow">
+
+            <h5>Role List</h5>
+
+            <table class="table table-bordered table-striped mt-2">
+                <thead>
+                    <tr>
+                        <th>Role Code</th>
+                        <th>Role Name</th>
+                    </tr>
+                </thead>
+                <tbody id="roleTable"></tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        // ==========================
+        // LOAD ROLES
+        // ==========================
+        async function loadRoles() {
+            try {
+                const res = await fetch('/api/RolesApi');
+
+                if (!res.ok) {
+                    throw new Error('Failed to load roles');
+                }
+
+                const data = await res.json();
+
+                console.log(data);
+
+                let html = '';
+
+                data.forEach(r => {
+                    html += `
+                            <tr onclick="selectRole(this)"
+                                data-id="${r.id}"
+                                data-code="${r.roleCode}"
+                                data-name="${r.rName}">
+                                <td>${r.roleCode}</td>
+                                <td>${r.rName}</td>
+                            </tr>`;
+                });
+
+                document.getElementById('roleTable').innerHTML = html;
+            }
+            catch (error) {
+                console.error(error);
+                showAlert('Failed to load roles', 'danger');
+            }
+        }
+
+        // ==========================
+        // SELECT ROLE
+        // ==========================
+        function selectRole(row) {
+            document.getElementById('roleId').value = row.dataset.id;
+            document.getElementById('roleCode').value = row.dataset.code;
+            document.getElementById('roleName').value = row.dataset.name;
+        }
+
+        // ==========================
+        // CLEAR FORM
+        // ==========================
+        function clearForm() {
+            document.getElementById('roleId').value = 0;
+            document.getElementById('roleCode').value = '';
+            document.getElementById('roleName').value = '';
+        }
+
+        // ==========================
+        // SHOW ALERT
+        // ==========================
+        function showAlert(message, type = 'success') {
+            const alertBox = document.getElementById('alertBox');
+
+            alertBox.className = `alert alert-${type}`;
+            alertBox.innerText = message;
+            alertBox.classList.remove('d-none');
+
+            setTimeout(() => {
+                alertBox.classList.add('d-none');
+            }, 3000);
+        }
+
+        // ==========================
+        // CREATE ROLE
+        // ==========================
+        async function createRole() {
+            const roleName = document.getElementById('roleName').value.trim();
+
+            if (!roleName) {
+                showAlert('Role name is required', 'warning');
+                return;
+            }
+
+            const res = await fetch('/api/RolesApi/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    rName: roleName
+                })
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                showAlert(result.message, 'success');
+                clearForm();
+                loadRoles();
+            }
+            else {
+                showAlert(result.message || 'Failed to create role', 'danger');
+            }
+
+            loadRoles();
+        }
+
+        // ==========================
+        // UPDATE ROLE
+        // ==========================
+        async function updateRole() {
+            const id = parseInt(document.getElementById('roleId').value);
+            const roleName = document.getElementById('roleName').value.trim();
+
+            if (id <= 0) {
+                showAlert('Please select a role first', 'warning');
+                return;
+            }
+
+            if (!roleName) {
+                showAlert('Role name is required', 'warning');
+                return;
+            }
+
+            const res = await fetch('/api/RolesApi/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: id,
+                    rName: roleName
+                })
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                showAlert(result.message, 'success');
+                clearForm();
+                loadRoles();
+            }
+            else {
+                showAlert(result.message || 'Failed to update role', 'danger');
+            }
+        }
+
+        // ==========================
+        // PAGE INIT
+        // ==========================
+        document.addEventListener('DOMContentLoaded', function () {
+            clearForm();
+            loadRoles();
+        });
+    </script>
+}

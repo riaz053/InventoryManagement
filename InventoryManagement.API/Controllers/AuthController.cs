@@ -16,7 +16,7 @@ namespace InventoryManagement.API.Controllers
         public async Task<IActionResult> Login(string username, string password)
         {
             // TEMP LOGIN (we will connect DB later)
-            if (username == "admin" && password == "123admin")
+            if (username == "Admin" && password == "1234")
             {
                 var claims = new List<Claim>
                 {

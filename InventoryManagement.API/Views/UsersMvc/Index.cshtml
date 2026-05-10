@@ -27,12 +27,15 @@
                 <option value="">Loading roles...</option>
             </select>
 
-            <button class="btn btn-primary w-50" onclick="createUser()">
-                Create User
-            </button>
-            <button class="btn btn-outline-info w-50" onclick="updateUser()">
-                Update User
-            </button>
+            <div class="d-flex gap-2 mt-3">
+                <button type="button" class="btn btn-primary flex-fill" onclick="createUser()">
+                    Create User
+                </button>
+
+                <button type="button" class="btn btn-outline-info flex-fill" onclick="updateUser()">
+                    Update User
+                </button>
+            </div>
 
             <p id="msg" class="mt-2 text-success"></p>
 
@@ -183,17 +186,12 @@
 
         document.getElementById("password").value = row.dataset.password;
 
-        //console.log(user);
+        //console.log(row.dataset.password);
         document.getElementById("roleId").value = row.dataset.roleid;
 
         // disable username editing
         document.getElementById("username").disabled = true;
 
-        @* if (user.role && user.role.length > 0) {
-
-            document.getElementById("roleId").value =
-                user.role[0].roleId;
-        } *@
     }
 
     function clearForm() {
@@ -253,6 +251,8 @@
 
         if (res.ok) {
             showAlert(result.message || "Updated successfully", "success");
+            document.getElementById("msg").style.color = "green";
+            document.getElementById("msg").innerText = result.message;
 
             clearForm();
             loadUsers();
@@ -260,6 +260,7 @@
         else {
             showAlert(result.message || "Update failed", "danger");
         }
+
     }
     // ==========================
     // INIT PAGE
@@ -267,5 +268,7 @@
     clearForm();
     loadRoles();
     loadUsers();
+
+    //console.log("asasasa");
 
 </script>

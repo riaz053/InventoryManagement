@@ -65,11 +65,11 @@ namespace InventoryManagement.API.Controllers
                 return NotFound();
             }
 
-            product.Name = model.Name;
-            product.Code = model.Code;
-            product.PurchaseRate = model.PurchaseRate;
-            product.SaleRate = model.SaleRate;
-            product.Quantity = model.Quantity;
+            product.pName = model.pName;
+            // product.Code = model.Code;
+            // product.PurchaseRate = model.PurchaseRate;
+            // product.SaleRate = model.SaleRate;
+            // product.Quantity = model.Quantity;
 
             await _context.SaveChangesAsync();
 

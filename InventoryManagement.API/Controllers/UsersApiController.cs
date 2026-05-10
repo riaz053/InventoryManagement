@@ -22,23 +22,31 @@ namespace InventoryManagement.API.Controllers
         public async Task<IActionResult> GetUsers()
         {
             var users = await _context.Users
-                    .Select(u => new
-                    {
-                        u.Id,
-                        u.Username,
-                        u.IsActive,
+                .Select(u => new
+                {
+                    u.Id,
+                    u.userCode,
+                    u.Username,
+                    u.IsActive,
+                    u.Password,
 
-                        RoleId = u.UserRoles
-                            .Select(r => r.RoleId)
-                            .FirstOrDefault(),
+                    RoleId = u.UserRoles
+                        .Select(ur => ur.RoleId)
+                        .FirstOrDefault(),
 
-                        Role = u.UserRoles
-                            .Select(r => r.Role.rName)
-                            .FirstOrDefault()
-                    }).ToListAsync();
+                    roleCode = u.UserRoles
+                        .Select(ur => ur.Role.roleCode)
+                        .FirstOrDefault(),
+
+                    Role = u.UserRoles
+                        .Select(ur => ur.Role.rName)
+                        .FirstOrDefault()
+                })
+                .ToListAsync();
 
             return Ok(users);
         }
+
 
         // POST: api/UsersApi/create
         [HttpPost("create")]
@@ -46,9 +54,9 @@ namespace InventoryManagement.API.Controllers
         {
             // 🔥 STEP 1: CHECK DUPLICATE USERNAME
             var existingUser = await _context.Users
-            .FirstOrDefaultAsync(x =>
-                x.Username.Trim().ToLower() == dto.Username.Trim().ToLower()
-            );
+                .FirstOrDefaultAsync(x =>
+                    x.Username.Trim().ToLower() == dto.Username.Trim().ToLower()
+                );
 
             if (existingUser != null)
             {
@@ -69,7 +77,11 @@ namespace InventoryManagement.API.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            // 🔥 STEP 3: ASSIGN ROLE
+            // 🔥 STEP 3: GENERATE USER CODE
+            user.userCode = $"USR-{user.Id:D9}";
+            await _context.SaveChangesAsync();
+
+            // 🔥 STEP 4: ASSIGN ROLE
             var userRole = new UserRoles
             {
                 UserId = user.Id,
@@ -81,9 +93,12 @@ namespace InventoryManagement.API.Controllers
 
             return Ok(new
             {
-                message = "User created successfully"
+                message = "User created successfully",
+                userCode = user.userCode
             });
         }
+
+
 
         [HttpPost("update")]
         public async Task<IActionResult> UpdateUser(CreateUserDto dto)
@@ -92,38 +107,37 @@ namespace InventoryManagement.API.Controllers
 
             if (user == null)
             {
-                return NotFound();
+                return NotFound(new { message = "User not found" });
             }
 
-            // update password only
+            // 🔥 UPDATE USER FIELDS
             user.Password = dto.Password;
 
-            // find existing role mapping
+            // 🔥 ROLE CHECK
             var existingRole = await _context.UserRoles
                 .FirstOrDefaultAsync(x => x.UserId == user.Id);
 
             if (existingRole != null)
             {
-                // UPDATE existing role
+                // UPDATE ROLE
                 existingRole.RoleId = dto.RoleId;
             }
             else
             {
-                // INSERT new role mapping
-                var userRoles = new UserRoles
+                // INSERT ROLE
+                _context.UserRoles.Add(new UserRoles
                 {
                     UserId = user.Id,
                     RoleId = dto.RoleId
-                };
-
-                _context.UserRoles.Add(userRoles);
+                });
             }
 
             await _context.SaveChangesAsync();
 
             return Ok(new
             {
-                message = "User updated successfully"
+                message = "User updated successfully",
+                userCode = user.userCode
             });
         }
 

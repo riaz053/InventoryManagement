@@ -3,17 +3,16 @@ namespace InventoryManagement.API.Models
     public class Product
     {
         public int Id { get; set; }
+        public string pCode { get; set; } = string.Empty;
+        public string pName { get; set; } = string.Empty;
 
-        public string Name { get; set; } = string.Empty;
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
 
-        public string Code { get; set; } = string.Empty;
+        public int UnitId { get; set; }
+        public Units Unit { get; set; }
 
-        public decimal PurchaseRate { get; set; }
-
-        public decimal SaleRate { get; set; }
-
-        public int Quantity { get; set; }
-
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public decimal Price { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 }
