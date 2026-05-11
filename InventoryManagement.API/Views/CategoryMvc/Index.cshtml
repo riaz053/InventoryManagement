@@ -79,15 +79,15 @@
             data.forEach(c => {
 
                 html += `
-                                                                        <tr onclick="selectCategory(this)"
-                                                                            data-id="${c.id}"
-                                                                            data-code="${c.catCode}"
-                                                                            data-name="${c.catName}">
+                        <tr onclick="selectCategory(this)"
+                            data-id="${c.id}"
+                            data-code="${c.catCode}"
+                            data-name="${c.catName}">
 
-                                                                            <td>${c.catCode}</td>
-                                                                            <td>${c.catName}</td>
-                                                                        </tr>
-                                                                    `;
+                            <td>${c.catCode}</td>
+                            <td>${c.catName}</td>
+                        </tr>
+                    `;
             });
 
             document.getElementById("catTable").innerHTML = html;

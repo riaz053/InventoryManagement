@@ -1,0 +1,333 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/site.css" />
+
+<div id="alertBox" class="alert d-none" role="alert"></div>
+
+<div class="row">
+
+    <!-- Unit FORM -->
+    <div class="col-md-4">
+        <div class="card p-3 shadow">
+
+            <h5>Unit Entry</h5>
+
+            <input type="hidden" id="unitId" value="0" />
+
+            <!-- Unit Code (read only) -->
+            <div class="mb-3">
+                <label class="form-label">Unit Code</label>
+                <input type="text" id="unitCode" class="form-control" disabled />
+            </div>
+
+            <!-- Unit Name -->
+            <div class="mb-3">
+                <label class="form-label">Unit Name</label>
+                <input type="text" id="unitName" class="form-control" placeholder="Enter Unit name" />
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary w-50" onclick="createUnit()">
+                    Create
+                </button>
+
+                <button class="btn btn-outline-info w-50" onclick="updateUnit()">
+                    Update
+                </button>
+
+                @* <button class="btn btn-outline-warning w-50" onclick="deleteUnit()">
+                    Delete
+                </button> *@
+            </div>
+            <p id="msg" class="mt-2 text-success"></p>
+        </div>
+    </div>
+
+    <!-- Unit LIST -->
+    <div class="col-md-8">
+        <div class="card p-3 shadow">
+
+            <h5>Unit List</h5>
+
+            <table class="table table-bordered table-striped mt-2">
+                <thead>
+                    <tr>
+                        <th>Unit Code</th>
+                        <th>Unit Name</th>
+                    </tr>
+                </thead>
+
+                <tbody id="unitTable"></tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+
+        // ==========================
+        // LOAD unitEGORIES
+        // ==========================
+        async function loadunits() {
+
+            const res = await fetch('/api/UnitApi');
+            const data = await res.json();
+
+            let html = "";
+
+            data.forEach(c => {
+
+                html += `
+                                                        <tr onclick="selectUnit(this)"
+                                                            data-id="${c.id}"
+                                                            data-code="${c.unitCode}"
+                                                            data-name="${c.unitName}">
+
+                                                            <td>${c.unitCode}</td>
+                                                            <td>${c.unitName}</td>
+                                                        </tr>
+                                                    `;
+            });
+
+            document.getElementById("unitTable").innerHTML = html;
+        }
+
+        // ==========================
+        // SELECT Unit
+        // ==========================
+        function selectUnit(row) {
+
+            document.getElementById("unitId").value = row.dataset.id;
+            document.getElementById("unitCode").value = row.dataset.code;
+            document.getElementById("unitName").value = row.dataset.name;
+        }
+
+        // ==========================
+        // CLEAR FORM
+        // ==========================
+        function clearForm() {
+
+            document.getElementById("unitId").value = 0;
+            document.getElementById("unitCode").value = '';
+            document.getElementById("unitName").value = '';
+        }
+
+        // ==========================
+        // ALERT
+        // ==========================
+        function showAlert(message, type = "success") {
+
+            const alertBox = document.getElementById("alertBox");
+
+            alertBox.className = `alert alert-${type}`;
+            alertBox.innerText = message;
+            alertBox.classList.remove("d-none");
+
+            setTimeout(() => {
+                alertBox.classList.add("d-none");
+            }, 3000);
+        }
+
+        // ==========================
+        // CREATE Unit
+        // ==========================
+        async function createUnit() {
+
+            const name = document.getElementById("unitName").value.trim();
+
+            if (!name) {
+                showAlert("Unit name required", "warning");
+                return;
+            }
+
+            const res = await fetch('/api/UnitApi/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    unitName: name
+                })
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                showAlert(result.message, "success");
+                document.getElementById("msg").style.color = "green";
+                document.getElementById("msg").innerText = result.message;
+                clearForm();
+                loadunits();
+            }
+            else {
+                document.getElementById("msg").style.color = "red";
+                document.getElementById("msg").innerText = result.message;
+                showAlert(result.message || "Error", "danger");
+            }
+
+        }
+
+        // ==========================
+        // UPDATE Unit
+        // ==========================
+        async function updateUnit() {
+            const id = parseInt(document.getElementById("unitId").value);
+            const name = document.getElementById("unitName").value.trim();
+
+            // Validation
+            if (!id || id <= 0) {
+                showAlert("Select a Unit first", "warning");
+                return;
+            }
+
+            if (!name) {
+                showAlert("Unit Name is required", "warning");
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/UnitApi/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // Fixed typo
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        unitName: name
+                    })
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    document.getElementById("msg").style.color = "green";
+                    document.getElementById("msg").innerText = result.message;
+
+                    showAlert(result.message, "success");
+
+                    clearForm();
+                    loadunits();
+                } else {
+                    document.getElementById("msg").style.color = "red";
+                    document.getElementById("msg").innerText =
+                        result.message || "Update failed";
+
+                    showAlert(result.message || "Update failed", "danger");
+                }
+            } catch (error) {
+                console.error("Update error:", error);
+
+                document.getElementById("msg").style.color = "red";
+                document.getElementById("msg").innerText =
+                    "An unexpected error occurred.";
+
+                showAlert("An unexpected error occurred.", "danger");
+            }
+        }
+
+ 
+        async function deleteUnit() {
+            const id = parseInt(document.getElementById("unitId").value);
+            const name = document.getElementById("unitName").value.trim();
+
+            if (id <= 0) {
+                showAlert("Select a Unit first", "warning");
+                return;
+            }
+
+            const res = await fetch('/api/UnitApi/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'appliunition/json'
+                },
+                body: JSON.stringify({
+                    id: id,
+                    unitName: name
+                })
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                document.getElementById("msg").style.color = "green";
+                document.getElementById("msg").innerText = result.message;
+                showAlert(result.message, "success");
+                clearForm();
+                loadunits();
+            }
+            else {
+                document.getElementById("msg").style.color = "red";
+                document.getElementById("msg").innerText = result.message;
+                showAlert(result.message || "Error", "danger");
+            }
+        }
+
+        
+        // ==========================
+        // Delete
+        // ==========================
+        async function deleteUnit() {
+            const id = parseInt(document.getElementById("unitId").value);
+
+            if (!id || id <= 0) {
+                showAlert("Select a Unit first", "warning");
+                return;
+            }
+
+            // Confirmation before delete
+            if (!confirm("Are you sure you want to delete this unit?")) {
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/UnitApi/delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: id
+                    })
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    document.getElementById("msg").style.color = "green";
+                    document.getElementById("msg").innerText = result.message;
+
+                    showAlert(result.message, "success");
+
+                    clearForm();
+                    loadunits();
+                } else {
+                    document.getElementById("msg").style.color = "red";
+                    document.getElementById("msg").innerText = result.message || "Delete failed";
+
+                    showAlert(result.message || "Delete failed", "danger");
+                }
+            } catch (error) {
+                document.getElementById("msg").style.color = "red";
+                document.getElementById("msg").innerText = "An unexpected error occurred.";
+
+                showAlert("An unexpected error occurred.", "danger");
+                console.error(error);
+            }
+        }
+
+
+        // ==========================
+        // INIT
+        // ==========================
+        document.addEventListener("DOMContentLoaded", function () {
+            clearForm();
+            loadunits();
+        });
+
+    </script>
+}
