@@ -253,10 +253,13 @@
 
         const id = document.getElementById("productId").value;
 
-        const res = await fetch('/api/ProductApi/delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: id })
+        if (!id || id == 0) {
+            alert("Select a product first");
+            return;
+        }
+
+        const res = await fetch(`/api/ProductApi/${id}`, {
+            method: 'DELETE'
         });
 
         const result = await res.json();
@@ -265,7 +268,6 @@
         loadProducts();
         clearForm();
     }
-
     // ---------------------
     // EDIT (ROW CLICK)
     // ---------------------

@@ -125,13 +125,14 @@ namespace InventoryManagement.API.Controllers
         // UPDATE
         // =========================
         [HttpPost("update")]
-        public async Task<IActionResult> Update(Product model)
+        public async Task<IActionResult> Update(ProductUpdateDto model)
         {
             var data = await _context.Products.FindAsync(model.Id);
 
             if (data == null)
                 return NotFound(new { message = "Product not found" });
 
+            // Duplicate check (safe + correct)
             bool duplicate = await _context.Products.AnyAsync(p =>
                 p.Id != model.Id &&
                 p.ProductName == model.ProductName &&
@@ -140,6 +141,7 @@ namespace InventoryManagement.API.Controllers
             if (duplicate)
                 return BadRequest(new { message = "This product already exists for selected unit" });
 
+            // ONLY editable fields
             data.ProductName = model.ProductName;
             data.PurchasePrice = model.PurchasePrice;
             data.SalesPrice = model.SalesPrice;
@@ -147,20 +149,20 @@ namespace InventoryManagement.API.Controllers
             data.CategoryId = model.CategoryId;
             data.UnitId = model.UnitId;
             data.IsActive = model.IsActive;
+
             data.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Product updated successfully" });
         }
-
         // =========================
         // DELETE
         // =========================
-        [HttpPost("delete")]
-        public async Task<IActionResult> Delete(Product model)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
-            var data = await _context.Products.FindAsync(model.Id);
+            var data = await _context.Products.FindAsync(id);
 
             if (data == null)
                 return NotFound(new { message = "Product not found" });
@@ -170,7 +172,6 @@ namespace InventoryManagement.API.Controllers
 
             return Ok(new { message = "Product deleted successfully" });
         }
-
 
     }
 
