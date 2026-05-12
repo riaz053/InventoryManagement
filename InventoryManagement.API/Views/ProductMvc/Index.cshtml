@@ -1,0 +1,309 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Product";
+}
+
+<div class="container mt-3">
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Product Setup</h5>
+        </div>
+
+        <div class="card-body">
+
+            <input type="hidden" id="productId" value="0" />
+
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    <label class="form-label">Product Code</label>
+                    <input type="text" class="form-control" id="productCode" readonly />
+                </div>
+
+                <div class="col-md-5">
+                    <label class="form-label">Product Name</label>
+                    <input type="text" class="form-control" id="productName" />
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="categoryId"></select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Unit</label>
+                    <select class="form-select" id="unitId"></select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Purchase Price</label>
+                    <input type="number" class="form-control" id="purchasePrice" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Sales Price</label>
+                    <input type="number" class="form-control" id="salesPrice" />
+                </div>
+
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="isActive" checked />
+                        <label class="form-check-label">Active</label>
+                    </div>
+                </div>
+
+               
+                <div class="col-md-3">
+                    @* <label type="hidden" class="form-label">Reorder Level</label> *@
+                    <input type="hidden" type="number" class="form-control" id="reorderLevel" />
+                </div>
+
+                
+
+            </div>
+
+            <hr />
+
+            <div class="mb-2">
+                <button class="btn btn-success" onclick="saveProduct()">Add</button>
+                <button class="btn btn-primary" onclick="updateProduct()">Update</button>
+                <button class="btn btn-danger" onclick="deleteProduct()">Delete</button>
+                @* <button class="btn btn-secondary" onclick="clearForm()">Clear</button> *@
+            </div>
+
+            <div id="msg" class="fw-bold"></div>
+
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card mt-3">
+        <div class="card-header bg-light">
+            <strong>Product List</strong>
+        </div>
+
+        <div class="card-body p-0">
+
+            <table class="table table-bordered table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Unit</th>
+                        <th class="text-end">Purchase</th>
+                        <th class="text-end">Sales</th>
+                        <th>Active</th>
+                    </tr>
+                </thead>
+
+                <tbody id="productTable"></tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+@* <script src="~/js/product.js"></script> *@
+<script>
+
+    window.onload = function () {
+        loadProducts();
+        loadCategories();
+        loadUnits();
+    };
+
+    // ---------------------
+    // LOAD PRODUCTS
+    // ---------------------
+    async function loadProducts() {
+
+        const res = await fetch('/api/ProductApi');
+        const data = await res.json();
+
+        let rows = "";
+
+        //console.log(data);
+
+        data.forEach(p => {
+            rows += `
+            <tr onclick="editProduct(${p.id})" style="cursor:pointer">
+                <td>${p.productCode}</td>
+                <td>${p.productName}</td>
+                <td>${p.categoryName}</td>
+                <td>${p.unitName}</td>
+                <td class="text-end">${p.purchasePrice}</td>
+                <td class="text-end">${p.salesPrice}</td>
+                <td>${p.isActive ? "Yes" : "No"}</td>
+            </tr>
+        `;
+        });
+
+        document.getElementById("productTable").innerHTML = rows;
+    }
+
+    // ---------------------
+    // LOAD CATEGORIES
+    // ---------------------
+    async function loadCategories() {
+
+        const res = await fetch('/api/CategoryApi');
+        const data = await res.json();
+
+        let options = `<option value="">-- Select Category --</option>`;
+
+        data.forEach(c => {
+            options += `<option value="${c.id}">${c.catName}</option>`;
+        });
+
+        document.getElementById("categoryId").innerHTML = options;
+    }
+
+    // ---------------------
+    // LOAD UNITS
+    // ---------------------
+    async function loadUnits() {
+
+        const res = await fetch('/api/UnitApi');
+        const data = await res.json();
+
+        let options = `<option value="">-- Select Unit --</option>`;
+
+        data.forEach(u => {
+            options += `<option value="${u.id}">${u.unitName}</option>`;
+        });
+
+        document.getElementById("unitId").innerHTML = options;
+    }
+
+    // ---------------------
+    // SAVE
+    // ---------------------
+    async function saveProduct() {
+
+        const model = {
+            productName: document.getElementById("productName").value.trim(),
+            categoryId: parseInt(document.getElementById("categoryId").value),
+            unitId: parseInt(document.getElementById("unitId").value),
+            purchasePrice: parseFloat(document.getElementById("purchasePrice").value || 0),
+            salesPrice: parseFloat(document.getElementById("salesPrice").value || 0),
+            reorderLevel: parseInt(document.getElementById("reorderLevel").value || 0),
+            isActive: document.getElementById("isActive").checked
+        };
+
+        console.log("Sending:", model);
+
+        const res = await fetch('/api/ProductApi/create', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(model)
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+            console.log("ERROR:", result);
+            alert(result.message || "Error occurred");
+            return;
+        }
+
+        alert(result.message);
+
+        loadProducts();
+        clearForm();
+    }
+
+    // ---------------------
+    // UPDATE
+    // ---------------------
+    async function updateProduct() {
+
+        const model = {
+            id: document.getElementById("productId").value,
+            productName: document.getElementById("productName").value,
+            categoryId: document.getElementById("categoryId").value,
+            unitId: document.getElementById("unitId").value,
+            purchasePrice: document.getElementById("purchasePrice").value,
+            salesPrice: document.getElementById("salesPrice").value,
+            reorderLevel: document.getElementById("reorderLevel").value,
+            isActive: document.getElementById("isActive").checked
+        };
+
+        const res = await fetch('/api/ProductApi/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(model)
+        });
+
+        const result = await res.json();
+        alert(result.message);
+
+        loadProducts();
+        clearForm();
+    }
+
+    // ---------------------
+    // DELETE
+    // ---------------------
+    async function deleteProduct() {
+
+        const id = document.getElementById("productId").value;
+
+        const res = await fetch('/api/ProductApi/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        });
+
+        const result = await res.json();
+        alert(result.message);
+
+        loadProducts();
+        clearForm();
+    }
+
+    // ---------------------
+    // EDIT (ROW CLICK)
+    // ---------------------
+    async function editProduct(id) {
+
+        const res = await fetch(`/api/ProductApi/${id}`);
+        const p = await res.json();
+
+        document.getElementById("productId").value = p.id;
+        document.getElementById("productCode").value = p.productCode;
+
+        document.getElementById("productName").value = p.productName;
+        document.getElementById("categoryId").value = p.categoryId;
+        document.getElementById("unitId").value = p.unitId;
+
+        document.getElementById("purchasePrice").value = p.purchasePrice;
+        document.getElementById("salesPrice").value = p.salesPrice;
+        document.getElementById("reorderLevel").value = p.reorderLevel;
+        document.getElementById("isActive").checked = p.isActive;
+    }
+
+    // ---------------------
+    // CLEAR
+    // ---------------------
+    function clearForm() {
+
+        document.getElementById("productId").value = 0;
+        document.getElementById("productCode").value = "";
+
+        document.getElementById("productName").value = "";
+        document.getElementById("categoryId").value = "";
+        document.getElementById("unitId").value = "";
+
+        document.getElementById("purchasePrice").value = "";
+        document.getElementById("salesPrice").value = "";
+        document.getElementById("reorderLevel").value = "";
+        document.getElementById("isActive").checked = true;
+    }
+
+
+</script>

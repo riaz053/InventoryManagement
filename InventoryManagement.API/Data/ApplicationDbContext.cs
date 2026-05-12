@@ -13,14 +13,18 @@ namespace InventoryManagement.API.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRoles> UserRoles { get; set; }
+
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Units> Units { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-
+            // =============================
+            // USER - ROLE RELATIONSHIP
+            // =============================
             modelBuilder.Entity<UserRoles>()
                  .HasOne(ur => ur.User)
                  .WithMany(u => u.UserRoles)
@@ -35,7 +39,33 @@ namespace InventoryManagement.API.Data
                 .HasIndex(u => u.Username)
                 .IsUnique();
 
+            // =============================
+            // PRODUCT BUSINESS RULES
+            // =============================
+
+            // Unique Product Code (auto generated PRD-00000001)
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => p.ProductCode)
+                .IsUnique();
+
+            // Business Rule:
+            // Same ProductName cannot repeat under same Unit
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => new { p.ProductName, p.UnitId })
+                .IsUnique();
+
+            // Optional: improve FK behavior
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Category)
+                .WithMany()
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Unit)
+                .WithMany()
+                .HasForeignKey(p => p.UnitId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
-
