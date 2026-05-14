@@ -257,7 +257,7 @@
             alert("Select a product first");
             return;
         }
-
+        if (!confirm("Are you sure you want to delete this product?")) return;
         const res = await fetch(`/api/ProductApi/${id}`, {
             method: 'DELETE'
         });

@@ -9,6 +9,11 @@ namespace InventoryManagement.API.Data
             : base(options)
         {
         }
+        public DbSet<Menu> Menus { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RoleMenuPermission> RoleMenuPermissions { get; set; }
+        public DbSet<UserMenuPermission> UserMenuPermissions { get; set; }
+
 
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
@@ -22,22 +27,30 @@ namespace InventoryManagement.API.Data
         {
             base.OnModelCreating(modelBuilder);
 
+
+
+            modelBuilder.Entity<UserRoles>();
+
             // =============================
             // USER - ROLE RELATIONSHIP
             // =============================
+
             modelBuilder.Entity<UserRoles>()
-                 .HasOne(ur => ur.User)
-                 .WithMany(u => u.UserRoles)
-                 .HasForeignKey(ur => ur.UserId);
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId);
 
             modelBuilder.Entity<UserRoles>()
                 .HasOne(ur => ur.Role)
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(ur => ur.RoleId);
 
-            modelBuilder.Entity<User>()
-                .HasIndex(u => u.Username)
-                .IsUnique();
+            modelBuilder.Entity<Menu>()
+                .HasOne(m => m.ParentMenu)
+                .WithMany(m => m.Children)
+                .HasForeignKey(m => m.ParentMenuId)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             // =============================
             // PRODUCT BUSINESS RULES
@@ -66,6 +79,8 @@ namespace InventoryManagement.API.Data
                 .WithMany()
                 .HasForeignKey(p => p.UnitId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
         }
     }
 }

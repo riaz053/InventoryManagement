@@ -30,6 +30,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/InventoryApp/InventoryManagement.API/Views/MenuMvc/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVudU12Y1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/InventoryApp/InventoryManagement.API/Views/ProductMvc/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdE12Y1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

@@ -25,7 +25,7 @@ namespace InventoryManagement.API.Controllers
                 .Select(u => new
                 {
                     u.Id,
-                    u.userCode,
+                    u.UserCode,
                     u.Username,
                     u.IsActive,
                     u.Password,
@@ -39,7 +39,7 @@ namespace InventoryManagement.API.Controllers
                         .FirstOrDefault(),
 
                     Role = u.UserRoles
-                        .Select(ur => ur.Role.rName)
+                        .Select(ur => ur.Role.RoleName)
                         .FirstOrDefault()
                 })
                 .ToListAsync();
@@ -78,7 +78,7 @@ namespace InventoryManagement.API.Controllers
             await _context.SaveChangesAsync();
 
             // 🔥 STEP 3: GENERATE USER CODE
-            user.userCode = $"USR-{user.Id:D9}";
+            user.UserCode = $"USR-{user.Id:D9}";
             await _context.SaveChangesAsync();
 
             // 🔥 STEP 4: ASSIGN ROLE
@@ -94,7 +94,7 @@ namespace InventoryManagement.API.Controllers
             return Ok(new
             {
                 message = "User created successfully",
-                userCode = user.userCode
+                userCode = user.UserCode
             });
         }
 
@@ -137,7 +137,7 @@ namespace InventoryManagement.API.Controllers
             return Ok(new
             {
                 message = "User updated successfully",
-                userCode = user.userCode
+                userCode = user.UserCode
             });
         }
 

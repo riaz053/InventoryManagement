@@ -27,7 +27,7 @@ namespace InventoryManagement.API.Controllers
                 {
                     r.Id,
                     r.roleCode,
-                    r.rName
+                    r.RoleName
                 })
                 .ToListAsync();
 
@@ -42,7 +42,7 @@ namespace InventoryManagement.API.Controllers
         {
             // Check duplicate role name
             var exists = await _context.Roles
-                .AnyAsync(r => r.rName == dto.rName);
+                .AnyAsync(r => r.RoleName == dto.rName);
 
             if (exists)
             {
@@ -52,7 +52,7 @@ namespace InventoryManagement.API.Controllers
             // Create role
             var role = new Role
             {
-                rName = dto.rName
+                RoleName = dto.rName
             };
 
             _context.Roles.Add(role);
@@ -87,7 +87,7 @@ namespace InventoryManagement.API.Controllers
             var duplicate = await _context.Roles
                 .AnyAsync(r =>
                     r.Id != dto.Id &&
-                    r.rName == dto.rName);
+                    r.RoleName == dto.rName);
 
             if (duplicate)
             {
@@ -96,7 +96,7 @@ namespace InventoryManagement.API.Controllers
 
             // Update only role name
             // roleCode remains unchanged
-            role.rName = dto.rName;
+            role.RoleName = dto.rName;
 
             await _context.SaveChangesAsync();
 
