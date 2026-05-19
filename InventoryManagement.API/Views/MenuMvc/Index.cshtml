@@ -3,225 +3,371 @@
 }
 
 <div class="container mt-3">
-
     <h3>Menu Management</h3>
 
     <div class="row mt-3">
 
         <!-- FORM -->
         <div class="col-md-4">
-            <div class="card p-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
 
-                <input type="hidden" id="menuId" />
+                    <input type="hidden" id="menuId" />
 
-                <!-- MENU CODE -->
-                <div class="mb-2">
-                    <label>Menu Code</label>
-                    <input type="text" id="menuCode" class="form-control" />
+                    <div class="mb-3">
+                        <label class="form-label">Menu Name <span class="text-danger">*</span></label>
+                        <input type="text" id="menuName" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Link</label>
+                        <input type="text" id="link" class="form-control" placeholder="/MenuMvc" />
+                        <small class="text-muted">
+                            Leave blank if this is a group/folder menu.
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Icon</label>
+                        <input type="text" id="icon" class="form-control" placeholder="fa fa-users" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Display Order</label>
+                        <input type="number" id="displayOrder" class="form-control" value="0" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Parent Menu</label>
+                        <select id="parentMenuId" class="form-select">
+                            <option value="">-- None --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox" id="isActive" class="form-check-input" checked />
+                        <label class="form-check-label">
+                            Active
+                        </label>
+                    </div>
+
+                    <button type="button" class="btn btn-primary w-100" onclick="saveMenu()">
+                        Save
+                    </button>
+
+                    <button type="button" class="btn btn-secondary w-100 mt-2" onclick="clearForm()">
+                        Clear
+                    </button>
                 </div>
-
-                <!-- MENU NAME -->
-                <div class="mb-2">
-                    <label>Menu Name</label>
-                    <input type="text" id="menuName" class="form-control" />
-                </div>
-
-                <!-- LINK -->
-                <div class="mb-2">
-                    <label>Link</label>
-                    <input type="text" id="link" class="form-control" placeholder="/MenuMvc" />
-                </div>
-
-                <!-- ICON -->
-                <div class="mb-2">
-                    <label>Icon</label>
-                    <input type="text" id="icon" class="form-control" />
-                </div>
-
-                <!-- DISPLAY ORDER -->
-                <div class="mb-2">
-                    <label>Display Order</label>
-                    <input type="number" id="displayOrder" class="form-control" value="0" />
-                </div>
-
-                <!-- PARENT MENU -->
-                <div class="mb-2">
-                    <label>Parent Menu</label>
-                    <select id="parentMenuId" class="form-control">
-                        <option value="">-- None --</option>
-                    </select>
-                </div>
-
-                <!-- IS GROUP -->
-                <div class="mb-2 form-check">
-                    <input type="checkbox" id="isGroup" class="form-check-input" />
-                    <label class="form-check-label">Is Group Menu</label>
-                </div>
-
-                <!-- ACTIVE -->
-                <div class="mb-2 form-check">
-                    <input type="checkbox" id="isActive" class="form-check-input" checked />
-                    <label class="form-check-label">Active</label>
-                </div>
-
-                <button class="btn btn-primary w-100" onclick="saveMenu()">Save</button>
-                <button class="btn btn-secondary w-100 mt-2" onclick="clearForm()">Clear</button>
-
             </div>
         </div>
 
-        <!-- TABLE -->
+
         <div class="col-md-8">
-            <div class="card p-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
 
-                <table class="table table-bordered table-sm">
-                    <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Name</th>
-                            <th>Link</th>
-                            <th>Parent</th>
-                            <th>Group</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="menuTable"></tbody>
-                </table>
+                    <!-- Header Row -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Menu List</h5>
 
+                        <div class="d-flex align-items-center">
+                            <label for="menuTypeFilter" class="me-2 mb-0 fw-bold">
+                                Filter:
+                            </label>
+
+                            <select id="menuTypeFilter" class="form-select form-select-sm" style="width: 180px;"
+                                    onchange="loadMenus()">
+                                <option value="">All Menus</option>
+                                <option value="parent">Only Parent</option>
+                                <option value="child">Only Child</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <table class="table table-bordered table-hover table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Link</th>
+                                <th>Parent</th>
+                                <th>Order</th>
+                                <th>Status</th>
+                                <th width="120">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="menuTable"></tbody>
+                    </table>
+
+                </div>
             </div>
         </div>
 
+        
     </div>
 </div>
 
 <script>
-
     const apiUrl = "/api/Menu";
 
-    // LOAD MENUS
+    // =========================
+    // INITIAL LOAD
+    // =========================
+    document.addEventListener("DOMContentLoaded", function () {
+        loadMenus();
+        loadParentMenus();
+    });
+
+    // =========================
+    // LOAD ALL MENUS
+    // =========================
     async function loadMenus() {
-        const res = await fetch(apiUrl);
-        const data = await res.json();
+        try {
+            const res = await fetch(apiUrl);
 
-        let rows = "";
+            if (!res.ok) {
+                throw new Error("Failed to load menus.");
+            }
 
-        data.forEach(x => {
-            rows += `
-        <tr>
-            <td>${x.menuCode || ''}</td>
-            <td>${x.menuName}</td>
-            <td>${x.link || ''}</td>
-            <td>${x.parentMenuName || ''}</td>
-            <td>${x.isGroup ? "Yes" : "No"}</td>
-            <td>${x.isActive ? "Active" : "Inactive"}</td>
-            <td>
-                <button class="btn btn-sm btn-info" onclick='editMenu(${JSON.stringify(x)})'>Edit</button>
-                <button class="btn btn-sm btn-danger" onclick='deleteMenu(${x.menuId})'>Disable</button>
-            </td>
-        </tr>`;
-        });
+            let data = await res.json();
 
-        document.getElementById("menuTable").innerHTML = rows;
+            // Sort by DisplayOrder
+            data.sort((a, b) => a.displayOrder - b.displayOrder);
+
+            // Read selected filter
+            const filter = document.getElementById("menuTypeFilter").value;
+
+            // Parent Menu = Link is null/empty
+            // Child Menu = Link has value
+            if (filter === "parent") {
+                data = data.filter(x =>
+                    !x.link || x.link.trim() === ""
+                );
+            }
+            else if (filter === "child") {
+                data = data.filter(x =>
+                    x.link && x.link.trim() !== ""
+                );
+            }
+
+            const tbody = document.getElementById("menuTable");
+            tbody.innerHTML = "";
+
+            data.forEach(x => {
+                const row = `
+                <tr>
+                    <td>${x.menuCode ?? ""}</td>
+                    <td>${x.menuName ?? ""}</td>
+                    <td>${x.link ?? ""}</td>
+                    <td>${x.parentMenuName ?? ""}</td>
+                    <td>${x.displayOrder ?? 0}</td>
+                    <td>
+                        ${x.isActive
+                        ? '<span class="badge bg-success">Active</span>'
+                        : '<span class="badge bg-danger">Inactive</span>'}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning"
+                                onclick="editMenu(${x.menuId})">
+                            Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger"
+                                onclick="deleteMenu(${x.menuId})">
+                            Disable
+                        </button>
+                    </td>
+                </tr>
+            `;
+
+                tbody.innerHTML += row;
+            });
+        }
+        catch (error) {
+            console.error(error);
+            alert("Failed to load menus.");
+        }
     }
 
+    // =========================
     // LOAD PARENT MENU DROPDOWN
-    async function loadParentMenus() {
-        const res = await fetch(apiUrl);
-        const data = await res.json();
+    // =========================
+    async function loadParentMenus(selectedValue = "") {
+        try {
+            const res = await fetch("/api/Menu");
 
-        const ddl = document.getElementById("parentMenuId");
-        ddl.innerHTML = `<option value="">-- None --</option>`;
+            if (!res.ok) {
+                console.log("API failed");
+                return;
+            }
 
-        data
-            .filter(x => x.isGroup === true)
-            .forEach(x => {
+            const data = await res.json();
+            console.log("MENU API DATA:", data);
+
+            const ddl = document.getElementById("parentMenuId");
+
+            if (!ddl) {
+                console.error("Dropdown not found");
+                return;
+            }
+
+            ddl.innerHTML = '<option value="">-- None --</option>';
+
+            // 🔥 CORRECT PARENT FILTER
+            const parents = data.filter(x =>
+                x.isActive === true &&
+                //(x.parentMenuId === null || x.parentMenuId === 0) &&
+                (!x.link || x.link.trim() === "")
+            );
+
+            //console.log("PARENT MENUS:", parents);
+
+            parents.forEach(x => {
                 ddl.innerHTML += `
                 <option value="${x.menuId}">
                     ${x.menuName}
                 </option>`;
             });
+
+            if (selectedValue) {
+                ddl.value = selectedValue;
+            }
+        }
+        catch (err) {
+            console.error("Parent menu load error:", err);
+        }
     }
 
-    // SAVE
+    // =========================
+    // SAVE (CREATE / UPDATE)
+    // =========================
     async function saveMenu() {
+        try {
+            const menuId = document.getElementById("menuId").value;
 
-        const id = document.getElementById("menuId").value;
+            const payload = {
+                menuId: menuId ? parseInt(menuId) : 0,
+                menuName: document.getElementById("menuName").value.trim(),
+                link: document.getElementById("link").value.trim() || null,
+                icon: document.getElementById("icon").value.trim() || null,
+                displayOrder: parseInt(
+                    document.getElementById("displayOrder").value || "0"
+                ),
+                parentMenuId:
+                    document.getElementById("parentMenuId").value || null,
+                isActive:
+                    document.getElementById("isActive").checked
+            };
 
-        const obj = {
-            menuId: id ? parseInt(id) : 0,
-            menuCode: document.getElementById("menuCode").value,
-            menuName: document.getElementById("menuName").value,
-            link: document.getElementById("link").value,
-            icon: document.getElementById("icon").value,
-            displayOrder: parseInt(document.getElementById("displayOrder").value),
-            parentMenuId: document.getElementById("parentMenuId").value || null,
-            isGroup: document.getElementById("isGroup").checked,
-            isActive: document.getElementById("isActive").checked
-        };
+            if (!payload.menuName) {
+                alert("Menu Name is required.");
+                return;
+            }
 
-        const url = id ? "/api/Menu/update" : "/api/Menu/create";
+            const url = menuId
+                ? `${apiUrl}/update`
+                : `${apiUrl}/create`;
 
-        const res = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(obj)
-        });
+            const res = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
 
-        const result = await res.json();
-        alert(result.message);
+            const result = await res.json();
 
-        clearForm();
-        loadMenus();
-        loadParentMenus();
+            if (!res.ok) {
+                alert(result.message || "Operation failed.");
+                return;
+            }
+
+            alert(result.message);
+
+            clearForm();
+            await loadMenus();
+            await loadParentMenus();
+        }
+        catch (error) {
+            console.error(error);
+            alert("Failed to save menu.");
+        }
     }
 
+    // =========================
     // EDIT
-    function editMenu(x) {
-        document.getElementById("menuId").value = x.menuId;
-        document.getElementById("menuCode").value = x.menuCode || "";
-        document.getElementById("menuName").value = x.menuName || "";
-        document.getElementById("link").value = x.link || "";
-        document.getElementById("icon").value = x.icon || "";
-        document.getElementById("displayOrder").value = x.displayOrder;
-        document.getElementById("parentMenuId").value = x.parentMenuId || "";
-        document.getElementById("isGroup").checked = x.isGroup;
-        document.getElementById("isActive").checked = x.isActive;
+    // =========================
+    async function editMenu(id) {
+        try {
+            const res = await fetch(`${apiUrl}/${id}`);
+
+            if (!res.ok) {
+                throw new Error("Failed to load menu.");
+            }
+
+            const x = await res.json();
+
+            document.getElementById("menuId").value = x.menuId;
+            document.getElementById("menuName").value = x.menuName ?? "";
+            document.getElementById("link").value = x.link ?? "";
+            document.getElementById("icon").value = x.icon ?? "";
+            document.getElementById("displayOrder").value =
+                x.displayOrder ?? 0;
+            document.getElementById("isActive").checked =
+                x.isActive ?? true;
+
+            await loadParentMenus(x.parentMenuId);
+        }
+        catch (error) {
+            console.error(error);
+            alert("Failed to load menu for editing.");
+        }
     }
 
-    // DELETE (SOFT)
+    // =========================
+    // DELETE (SOFT DELETE)
+    // =========================
     async function deleteMenu(id) {
+        if (!confirm("Are you sure you want to disable this menu?"))
+            return;
 
-        if (!confirm("Disable this menu?")) return;
+        try {
+            const res = await fetch(`${apiUrl}/${id}`, {
+                method: "DELETE"
+            });
 
-        const res = await fetch(`${apiUrl}/${id}`, {
-            method: "DELETE"
-        });
+            const result = await res.json();
 
-        const result = await res.json();
-        alert(result.message);
+            if (!res.ok) {
+                alert(result.message || "Delete failed.");
+                return;
+            }
 
-        loadMenus();
-        loadParentMenus();
+            alert(result.message);
+
+            await loadMenus();
+            await loadParentMenus();
+        }
+        catch (error) {
+            console.error(error);
+            alert("Failed to disable menu.");
+        }
     }
 
-    // CLEAR
+    // =========================
+    // CLEAR FORM
+    // =========================
     function clearForm() {
         document.getElementById("menuId").value = "";
-        document.getElementById("menuCode").value = "";
         document.getElementById("menuName").value = "";
         document.getElementById("link").value = "";
         document.getElementById("icon").value = "";
         document.getElementById("displayOrder").value = 0;
         document.getElementById("parentMenuId").value = "";
-        document.getElementById("isGroup").checked = false;
         document.getElementById("isActive").checked = true;
     }
 
-    // INIT
-    loadMenus();
-    loadParentMenus();
 
 </script>

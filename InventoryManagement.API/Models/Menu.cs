@@ -4,30 +4,25 @@ namespace InventoryManagement.API.Models
     {
         public int MenuId { get; set; }
 
+        // Optional but useful for tracking
         public string MenuCode { get; set; } = string.Empty;
 
         public string MenuName { get; set; } = string.Empty;
 
-        // Direct URL to open when clicked
+        // URL to navigate (ONLY for clickable menus)
         public string? Link { get; set; }
 
-        // Icon class (optional)
         public string? Icon { get; set; }
 
-        // Sorting order
         public int DisplayOrder { get; set; }
 
-        // Parent menu reference
+        // 🔥 CORE OF TREE STRUCTURE
         public int? ParentMenuId { get; set; }
         public Menu? ParentMenu { get; set; }
 
-        // Child menus
         public ICollection<Menu> Children { get; set; } = new List<Menu>();
 
-        // Folder/group menu
-        public bool IsGroup { get; set; } = false;
-
-        // Active/inactive
+        // Active/Inactive control
         public bool IsActive { get; set; } = true;
     }
 }
