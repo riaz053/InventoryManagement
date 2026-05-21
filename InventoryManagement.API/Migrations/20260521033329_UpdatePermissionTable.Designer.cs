@@ -4,6 +4,7 @@ using InventoryManagement.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InventoryManagement.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260521033329_UpdatePermissionTable")]
+    partial class UpdatePermissionTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -273,32 +276,6 @@ namespace InventoryManagement.API.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("InventoryManagement.API.Models.RoleMenu", b =>
-                {
-                    b.Property<int>("RoleMenuId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleMenuId"));
-
-                    b.Property<bool>("IsAllowed")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("MenuId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("RoleMenuId");
-
-                    b.HasIndex("MenuId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("RoleMenus");
-                });
-
             modelBuilder.Entity("InventoryManagement.API.Models.RoleMenuPermission", b =>
                 {
                     b.Property<int>("RoleMenuPermissionId")
@@ -464,25 +441,6 @@ namespace InventoryManagement.API.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Unit");
-                });
-
-            modelBuilder.Entity("InventoryManagement.API.Models.RoleMenu", b =>
-                {
-                    b.HasOne("InventoryManagement.API.Models.Menu", "Menu")
-                        .WithMany()
-                        .HasForeignKey("MenuId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("InventoryManagement.API.Models.ApplicationRole", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Menu");
-
-                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("InventoryManagement.API.Models.RoleMenuPermission", b =>

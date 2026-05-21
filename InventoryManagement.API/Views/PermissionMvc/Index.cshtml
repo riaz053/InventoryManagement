@@ -1,0 +1,269 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Permission Management</h4>
+        </div>
+
+        <div class="card-body">
+
+            <input type="hidden" id="permissionId" />
+
+            <!-- FORM -->
+            <div class="row g-3 mb-3">
+
+                <div class="col-md-4">
+                    <label class="form-label">Permission Name</label>
+                    <input type="text" id="permissionName" class="form-control" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Description</label>
+                    <input type="text" id="description" class="form-control" />
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <div class="form-check">
+                        <input type="checkbox" id="isActive" class="form-check-input" checked />
+                        <label class="form-check-label">Active</label>
+                    </div>
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button class="btn btn-success w-100" onclick="savePermission()">Save</button>
+                    <button class="btn btn-secondary w-100" onclick="clearPermissionForm()">Clear</button>
+                </div>
+
+            </div>
+
+            <hr />
+
+            <!-- TABLE -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Permission Name</th>
+                            <th>Description</th>
+                            <th>Active</th>
+                            <th style="width: 150px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="permissionTable"></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const apiUrl = "/api/Permission";
+
+    // =========================
+    // INITIAL LOAD
+    // =========================
+    document.addEventListener("DOMContentLoaded", function () {
+        loadPermissions();
+    });
+
+    // =========================
+    // LOAD ALL PERMISSIONS
+    // =========================
+    async function loadPermissions() {
+        try {
+            const res = await fetch("/api/Permission");
+
+            if (!res.ok) {
+                console.log("Load failed:", res.status);
+                return;
+            }
+
+            const dataText = await res.text();
+
+            let data = [];
+            try {
+                data = dataText ? JSON.parse(dataText) : [];
+            } catch (e) {
+                console.error("Invalid JSON:", dataText);
+                return;
+            }
+
+            const tbody = document.getElementById("permissionTable");
+
+            if (!tbody) {
+                console.error("permissionTable not found in HTML");
+                return;
+            }
+
+            tbody.innerHTML = "";
+
+            data.forEach(x => {
+                const row = `
+                <tr>
+                    <td>${x.permissionId ?? ""}</td>
+                    <td>${x.permissionName ?? ""}</td>
+                    <td>${x.description ?? ""}</td>
+                    <td>
+                        ${x.isActive
+                        ? '<span class="badge bg-success">Active</span>'
+                        : '<span class="badge bg-danger">Inactive</span>'}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="editPermission(${x.permissionId})">
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+            `;
+                tbody.innerHTML += row;
+            });
+
+        } catch (error) {
+            console.error("LOAD ERROR:", error);
+            alert("Load permissions failed");
+        }
+    }
+
+    // =========================
+    // SAVE (CREATE / UPDATE)
+    // =========================
+    async function savePermission() {
+        try {
+            const rawId = document.getElementById("permissionId").value;
+            const permissionId = rawId ? Number(rawId) : 0;
+
+            const payload = {
+                permissionId: permissionId,
+                permissionName: document.getElementById("permissionName").value.trim(),
+                description: document.getElementById("description").value.trim(),
+                isActive: document.getElementById("isActive").checked
+            };
+
+            const isEdit = permissionId > 0;
+
+            const url = isEdit
+                ? `/api/Permission/${permissionId}`
+                : `/api/Permission`;
+
+            const method = isEdit ? "PUT" : "POST";
+
+            const res = await fetch(url, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            // 🔥 SAFE RESPONSE HANDLING (IMPORTANT FIX)
+            const text = await res.text();
+            let result = null;
+
+            try {
+                result = text ? JSON.parse(text) : null;
+            } catch (e) {
+                result = text;
+            }
+
+            if (!res.ok) {
+                alert(result || "Save failed");
+                return;
+            }
+
+            alert("Saved successfully");
+
+            clearPermissionForm();
+
+            await loadPermissions(); // now safe
+
+        } catch (error) {
+            console.error("ERROR:", error);
+            alert("Save failed");
+        }
+    }
+
+    // =========================
+    // EDIT
+    // =========================
+    async function editPermission(id) {
+        try {
+            const res = await fetch(`${apiUrl}/${id}`);
+
+
+            if (!res.ok) {
+                throw new Error("Failed to load permission by Click.");
+            }
+
+            const x = await res.json();
+
+            //console.log(x);
+
+            document.getElementById("permissionId").value = x.permissionId;
+            document.getElementById("permissionName").value = x.permissionName ?? "";
+            document.getElementById("description").value = x.description ?? "";
+            document.getElementById("isActive").checked = x.isActive ?? true;
+        }
+        catch (error) {
+            console.error(error);
+            alert("Failed to load permission for editing.");
+        }
+    }
+
+    // =========================
+    // DELETE (SOFT DELETE)
+    // =========================
+    async function deletePermission(id) {
+        if (!confirm("Are you sure you want to disable this permission?"))
+            return;
+
+        try {
+            const res = await fetch(`${apiUrl}/${id}`, {
+                method: "DELETE"
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) {
+                alert(result.message || "Delete failed.");
+                return;
+            }
+
+            alert(result.message);
+
+            await loadPermissions();
+        }
+        catch (error) {
+            console.error(error);
+            alert("Failed to disable permission.");
+        }
+    }
+
+    // =========================
+    // CLEAR FORM
+    // =========================
+    function clearPermissionForm() {
+        const idEl = document.getElementById("permissionId");
+        if (idEl) idEl.value = "";
+
+        const codeEl = document.getElementById("permissionCode");
+        if (codeEl) codeEl.value = "";
+
+        const nameEl = document.getElementById("permissionName");
+        if (nameEl) nameEl.value = "";
+
+        const descEl = document.getElementById("description");
+        if (descEl) descEl.value = "";
+
+        const activeEl = document.getElementById("isActive");
+        if (activeEl) activeEl.checked = true;
+    }
+
+</script>
+
+    
+    

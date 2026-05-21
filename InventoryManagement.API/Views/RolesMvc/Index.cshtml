@@ -73,19 +73,19 @@
 
                 const data = await res.json();
 
-                console.log(data);
+                //console.log(data);
 
                 let html = '';
 
                 data.forEach(r => {
                     html += `
-                            <tr onclick="selectRole(this)"
-                                data-id="${r.id}"
-                                data-code="${r.roleCode}"
-                                data-name="${r.rName}">
-                                <td>${r.roleCode}</td>
-                                <td>${r.rName}</td>
-                            </tr>`;
+                                                        <tr onclick="selectRole(this)"
+                                                            data-id="${r.id}"
+                                                            data-code="${r.roleCode}"
+                                                            data-name="${r.roleName}">
+                                                            <td>${r.roleCode}</td>
+                                                            <td>${r.roleName}</td>
+                                                        </tr>`;
                 });
 
                 document.getElementById('roleTable').innerHTML = html;

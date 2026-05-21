@@ -13,7 +13,7 @@ namespace InventoryManagement.API.Data
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<RoleMenuPermission> RoleMenuPermissions { get; set; }
         public DbSet<UserMenuPermission> UserMenuPermissions { get; set; }
-
+        public DbSet<RoleMenu> RoleMenus { get; set; }
 
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
