@@ -95,5 +95,5 @@ app.MapControllerRoute(
 app.MapControllers();
 
 #endregion
-
+app.UseStaticFiles();
 app.Run();

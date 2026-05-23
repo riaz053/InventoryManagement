@@ -31,37 +31,6 @@ namespace InventoryManagement.API.Controllers
             return Ok(menuIds);
         }
 
-        // public async Task<IActionResult> GetRoleMenus(int roleId)
-        // {
-        //     var assignedMenus = await _context.RoleMenus
-        //         .Where(x => x.RoleId == roleId)
-        //         .Select(x => x.MenuId)
-        //         .ToListAsync();
-
-        //     var menus = await _context.Menus
-        //         .Where(x => x.IsActive)
-        //         .ToListAsync();
-
-        //     var result = menus
-        //         .Where(x => x.ParentMenuId == null)
-        //         .Select(parent => new
-        //         {
-        //             parent.MenuId,
-        //             parent.MenuName,
-
-        //             children = menus
-        //                 .Where(c => c.ParentMenuId == parent.MenuId)
-        //                 .Select(c => new
-        //                 {
-        //                     c.MenuId,
-        //                     c.MenuName,
-        //                     isChecked = assignedMenus.Contains(c.MenuId)
-        //                 })
-        //         });
-
-        //     return Ok(result);
-        // }
-
         // ==============================
         // TOGGLE ROLE MENU (CHECKBOX)
         // ==============================
