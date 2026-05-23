@@ -1,0 +1,315 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .menu-parent {
+        font-weight: 600;
+        margin-top: 10px;
+        padding: 6px;
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .menu-child {
+        margin-left: 25px;
+        padding: 4px 0;
+    }
+
+    .menu-subchild {
+        margin-left: 50px;
+        padding: 4px 0;
+    }
+
+    .tree-line {
+        border-left: 1px dashed #ccc;
+        margin-left: 10px;
+        padding-left: 10px;
+    }
+
+    .menu-fade-out {
+        opacity: 0.3;
+        transition: opacity 0.2s ease;
+    }
+
+    .menu-fade-in {
+        opacity: 1;
+        transition: opacity 0.25s ease;
+    }
+
+    .menu-loading {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .page-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.7);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .spinner {
+        width: 45px;
+        height: 45px;
+        border: 5px solid #ddd;
+        border-top: 5px solid #007bff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .loader-text {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #333;
+    }
+</style>
+<div class="container mt-4">
+
+    <div class="card p-3">
+
+        <h5>Role Menu Assignment</h5>
+
+        <select id="roleId" class="form-control mb-3" onchange="loadMenusonChange()">
+            <option value="">Select Role</option>
+        </select>
+
+        <div id="menuTree"></div>
+
+    </div>
+
+</div>
+<div id="pageLoader" class="page-loader hidden">
+    <div class="spinner"></div>
+    <div class="loader-text">Loading Menus...</div>
+</div>
+<script>
+    let roleIdGlobal = 0;
+
+    // =========================
+    // LOAD ROLES
+    // =========================
+    async function loadRoles() {
+
+        const res = await fetch('/api/RolesApi');
+        const data = await res.json();
+        //console.log(data);
+        let html = `<option value="">Select Role</option>`;
+
+        data.forEach(r => {
+            html += `<option value="${r.id}">${r.roleName}</option>`;
+        });
+
+        document.getElementById("roleId").innerHTML = html;
+    }
+
+    // =========================
+    // LOAD MENUS ON ROLE CHANGE
+    // =========================
+    async function loadMenusonChange() {
+
+        const roleId = document.getElementById("roleId").value;
+        const container = document.getElementById("menuTree");
+
+        // ✅ NO ROLE → reload full menu
+        if (!roleId || roleId === "0") {
+            loadMenus();
+            return;
+        }
+
+        // 🔥 START ANIMATION (fade out)
+        container.classList.add("menu-fade-out", "menu-loading");
+
+        // small delay to allow fade effect
+        await new Promise(r => setTimeout(r, 150));
+
+        const r = await fetch(`/api/RoleMenuApi/role/${roleId}`);
+        const roleData = await r.json();
+
+        const assignedMenus = new Set(roleData.map(x => Number(x)));
+
+        // RESET ALL CHECKBOXES (no UI rebuild)
+        const checkboxes = container.querySelectorAll("input[type='checkbox']");
+
+        checkboxes.forEach(cb => {
+            cb.checked = false;
+        });
+
+        // APPLY CHECKS
+        checkboxes.forEach(cb => {
+            const id = Number(cb.dataset.menuid);
+            if (assignedMenus.has(id)) {
+                cb.checked = true;
+            }
+        });
+
+        // 🔥 FADE IN BACK
+        container.classList.remove("menu-fade-out");
+        container.classList.add("menu-fade-in");
+
+        // remove loading lock
+        setTimeout(() => {
+            container.classList.remove("menu-loading");
+        }, 200);
+    }
+
+    async function loadMenus() {
+
+        showLoader(); // 🔥 START LOADER
+
+        try {
+            const roleId = document.getElementById("roleId").value;
+            roleIdGlobal = roleId;
+
+            // 1. LOAD ALL MENUS
+            const res = await fetch(`/api/Menu`);
+            const allMenus = await res.json();
+
+            // 2. LOAD ASSIGNED MENUS
+            let assignedMenus = [];
+
+            let html = "";
+
+            // LEVEL 1
+            const level1 = allMenus.filter(x => x.parentMenuId === null);
+
+            level1.forEach(l1 => {
+
+                html += `<div class="level-1">▶ ${l1.menuName}</div>`;
+
+                // LEVEL 2
+                const level2 = allMenus.filter(x => x.parentMenuId === l1.menuId);
+
+                level2.forEach(l2 => {
+
+                    const level3 = allMenus.filter(x => x.parentMenuId === l2.menuId);
+
+                    // =========================
+                    // CASE 1: HAS CHILDREN
+                    // =========================
+                    if (level3.length > 0) {
+
+                        html += `<div class="level-2">---▶ ${l2.menuName}</div>`;
+
+                        level3.forEach(l3 => {
+
+                            const hasLink = l3.link && l3.link.trim() !== "";
+
+                            if (hasLink) {
+
+                                const checked = assignedMenus.includes(l3.menuId);
+
+                                html += `
+                                <div class="level-3">
+
+                                    <span>-------▶${l3.menuName}</span>
+
+                                    <input type="checkbox"
+                                        data-menuid="${l3.menuId}"
+                                        onchange="toggleMenu(this)"
+                                        ${checked ? "checked" : ""} />
+
+                                </div>
+                            `;
+                            }
+                            else {
+                                html += `
+                            <div class="level-3">
+                                ${l2.menuName}
+                            </div>
+                        `;
+                            }
+                        });
+                    }
+
+                    // =========================
+                    // CASE 2: NO CHILDREN (LEAF)
+                    // =========================
+                    else {
+
+                        const hasLink = l2.link && l2.link.trim() !== "";
+
+                        if (hasLink) {
+
+                            const checked = assignedMenus.includes(l2.menuId);
+
+                            html += `
+                                <div class="level-2">
+                                 --▶${l2.menuName}
+                                    <input type="checkbox"
+                                        data-menuid="${l2.menuId}"
+                                        onchange="toggleMenu(this)"
+                                        ${checked ? "checked" : ""} />
+
+                                   
+                                </div>
+                            `;
+                        }
+                        else {
+                            html += `<div class="level-2">--▶ ${l2.menuName}</div>`;
+                        }
+                    }
+                });
+            });
+
+            document.getElementById("menuTree").innerHTML = html;
+        } finally {
+            hideLoader(); // 🔥 ALWAYS STOP LOADER
+        }
+    }
+
+
+    // =========================
+    // TOGGLE (CHECK / UNCHECK)
+    // =========================
+    async function toggleMenu(cb) {
+
+        const menuId = parseInt(cb.dataset.menuid);
+        const roleId = parseInt(document.getElementById("roleId").value);
+
+        await fetch("/api/RoleMenuApi/toggle", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                roleId: roleId,
+                menuId: menuId
+            })
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadRoles();
+        loadMenus();
+    });
+
+    function showLoader() {
+        document.getElementById("pageLoader").classList.remove("hidden");
+    }
+
+    function hideLoader() {
+        document.getElementById("pageLoader").classList.add("hidden");
+    }
+
+</script>

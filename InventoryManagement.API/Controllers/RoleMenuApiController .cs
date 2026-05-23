@@ -17,64 +17,80 @@ namespace InventoryManagement.API.Controllers
             _context = context;
         }
 
-        // =====================================
-        // GET ROLE MENUS
-        // =====================================
-        [HttpGet("{roleId}")]
+        // ==============================
+        // GET ROLE MENUS (TREE VIEW)
+        // ==============================
+        [HttpGet("role/{roleId}")]
         public async Task<IActionResult> GetRoleMenus(int roleId)
         {
-            var assignedMenus = await _context.RoleMenus
-                .Where(x => x.RoleId == roleId && x.IsAllowed)
+            var menuIds = await _context.RoleMenus
+                .Where(x => x.RoleId == roleId)
                 .Select(x => x.MenuId)
                 .ToListAsync();
 
-            var menus = await _context.Menus
-                .Where(x => x.IsActive)
-                .OrderBy(x => x.DisplayOrder)
-                .Select(x => new
-                {
-                    x.MenuId,
-                    x.MenuName,
-                    x.ParentMenuId,
-
-                    isAllowed =
-                        assignedMenus.Contains(x.MenuId)
-                })
-                .ToListAsync();
-
-            return Ok(menus);
+            return Ok(menuIds);
         }
 
-        // =====================================
-        // SAVE ROLE MENUS
-        // =====================================
-        [HttpPost("save")]
-        public async Task<IActionResult> Save(RoleMenuSaveDto dto)
+        // public async Task<IActionResult> GetRoleMenus(int roleId)
+        // {
+        //     var assignedMenus = await _context.RoleMenus
+        //         .Where(x => x.RoleId == roleId)
+        //         .Select(x => x.MenuId)
+        //         .ToListAsync();
+
+        //     var menus = await _context.Menus
+        //         .Where(x => x.IsActive)
+        //         .ToListAsync();
+
+        //     var result = menus
+        //         .Where(x => x.ParentMenuId == null)
+        //         .Select(parent => new
+        //         {
+        //             parent.MenuId,
+        //             parent.MenuName,
+
+        //             children = menus
+        //                 .Where(c => c.ParentMenuId == parent.MenuId)
+        //                 .Select(c => new
+        //                 {
+        //                     c.MenuId,
+        //                     c.MenuName,
+        //                     isChecked = assignedMenus.Contains(c.MenuId)
+        //                 })
+        //         });
+
+        //     return Ok(result);
+        // }
+
+        // ==============================
+        // TOGGLE ROLE MENU (CHECKBOX)
+        // ==============================
+        [HttpPost("toggle")]
+        public async Task<IActionResult> Toggle(RoleMenuDto dto)
         {
-            var oldMenus = await _context.RoleMenus
-                .Where(x => x.RoleId == dto.RoleId)
-                .ToListAsync();
+            var exists = await _context.RoleMenus
+                .FirstOrDefaultAsync(x =>
+                    x.RoleId == dto.RoleId &&
+                    x.MenuId == dto.MenuId);
 
-            _context.RoleMenus.RemoveRange(oldMenus);
-
-            foreach (var item in dto.Menus)
+            if (exists == null)
             {
-                if (item.IsAllowed)
+                _context.RoleMenus.Add(new RoleMenu
                 {
-                    _context.RoleMenus.Add(new RoleMenu
-                    {
-                        RoleId = dto.RoleId,
-                        MenuId = item.MenuId,
-                        IsAllowed = true
-                    });
-                }
+                    RoleId = dto.RoleId,
+                    MenuId = dto.MenuId
+                });
+            }
+            else
+            {
+                _context.RoleMenus.Remove(exists);
             }
 
             await _context.SaveChangesAsync();
 
             return Ok(new
             {
-                message = "Menus assigned successfully"
+                message = "Updated successfully"
             });
         }
     }

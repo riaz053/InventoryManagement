@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "90cTDC8iuyPXMHZcO0lxBs/5R4RRC0jugLP8RzldDTE=",
+  "Hash": "XifBPx5GX4vbqyqFnpQrtLc5gQYBdZgJvouZuom49qg=",
   "Source": "InventoryManagement.API",
   "BasePath": "_content/InventoryManagement.API",
   "Mode": "Default",
@@ -10,17 +10,17 @@
     {
       "Name": "InventoryManagement.API\\wwwroot",
       "Source": "InventoryManagement.API",
-      "ContentRoot": "E:\\InventoryApp\\inventorymanagement.api\\wwwroot\\",
+      "ContentRoot": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\",
       "BasePath": "_content/InventoryManagement.API",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "E:\\InventoryApp\\inventorymanagement.api\\wwwroot\\css\\site.css",
+      "Identity": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\css\\site.css",
       "SourceId": "InventoryManagement.API",
       "SourceType": "Discovered",
-      "ContentRoot": "E:\\InventoryApp\\inventorymanagement.api\\wwwroot\\",
+      "ContentRoot": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\",
       "BasePath": "_content/InventoryManagement.API",
       "RelativePath": "css/site.css",
       "AssetKind": "All",

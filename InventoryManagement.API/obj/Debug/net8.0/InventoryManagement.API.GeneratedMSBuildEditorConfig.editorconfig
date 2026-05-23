@@ -42,8 +42,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdE12Y1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/InventoryApp/InventoryManagement.API/Views/RoleAsssignMvc/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUm9sZUFzc3NpZ25NdmNcSW5kZXguY3NodG1s
+[E:/InventoryApp/InventoryManagement.API/Views/RoleMenuMvc/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUm9sZU1lbnVNdmNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/InventoryApp/InventoryManagement.API/Views/RolesMvc/Index.cshtml]

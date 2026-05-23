@@ -11,7 +11,7 @@ namespace InventoryManagement.API.Data
         }
         public DbSet<Menu> Menus { get; set; }
         public DbSet<Permission> Permissions { get; set; }
-        public DbSet<RoleMenuPermission> RoleMenuPermissions { get; set; }
+        //public DbSet<RoleMenuPermission> RoleMenuPermissions { get; set; }
         public DbSet<UserMenuPermission> UserMenuPermissions { get; set; }
         public DbSet<RoleMenu> RoleMenus { get; set; }
 
@@ -80,7 +80,8 @@ namespace InventoryManagement.API.Data
                 .HasForeignKey(p => p.UnitId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
+            modelBuilder.Entity<RoleMenu>()
+                .HasKey(x => new { x.RoleId, x.MenuId });
         }
     }
 }
