@@ -1,18 +1,25 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+<style>
+    .btn-xs {
+        padding: 2px 6px;
+        font-size: 11px;
+        line-height: 1.2;
+    }
+</style>
 <div class="container mt-3">
     <h3>Menu Management</h3>
 
     <div class="row mt-3">
 
         <!-- FORM -->
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card shadow-sm">
                 <div class="card-body">
 
                     <input type="hidden" id="menuId" />
+                    <input type="hidden" id="menuCode" />
 
                     <div class="mb-3">
                         <label class="form-label">Menu Name <span class="text-danger">*</span></label>
@@ -21,10 +28,9 @@
 
                     <div class="mb-3">
                         <label class="form-label">Link</label>
-                        <input type="text" id="link" class="form-control" placeholder="/MenuMvc" />
-                        <small class="text-muted">
-                            Leave blank if this is a group/folder menu.
-                        </small>
+                        <input type="text" id="link" class="form-control"
+                               placeholder="Leave blank if this is a group/folder menu." />
+
                     </div>
 
                     <div class="mb-3">
@@ -63,7 +69,7 @@
         </div>
 
 
-        <div class="col-md-8">
+        <div class="col-md-9">
             <div class="card shadow-sm">
                 <div class="card-body">
 
@@ -139,8 +145,6 @@
             // Read selected filter
             const filter = document.getElementById("menuTypeFilter").value;
 
-            // Parent Menu = Link is null/empty
-            // Child Menu = Link has value
             if (filter === "parent") {
                 data = data.filter(x =>
                     !x.link || x.link.trim() === ""
@@ -169,11 +173,11 @@
                         : '<span class="badge bg-danger">Inactive</span>'}
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-warning"
+                        <button class="btn btn-xs btn-warning"
                                 onclick="editMenu(${x.menuId})">
                             Edit
                         </button>
-                        <button class="btn btn-sm btn-danger"
+                        <button class="btn btn-xs btn-danger"
                                 onclick="deleteMenu(${x.menuId})">
                             Disable
                         </button>
@@ -203,7 +207,6 @@
             }
 
             const data = await res.json();
-            console.log("MENU API DATA:", data);
 
             const ddl = document.getElementById("parentMenuId");
 
@@ -217,11 +220,8 @@
             // 🔥 CORRECT PARENT FILTER
             const parents = data.filter(x =>
                 x.isActive === true &&
-                //(x.parentMenuId === null || x.parentMenuId === 0) &&
                 (!x.link || x.link.trim() === "")
             );
-
-            //console.log("PARENT MENUS:", parents);
 
             parents.forEach(x => {
                 ddl.innerHTML += `
@@ -243,19 +243,30 @@
     // SAVE (CREATE / UPDATE)
     // =========================
     async function saveMenu() {
+
         try {
             const menuId = document.getElementById("menuId").value;
 
             const payload = {
                 menuId: menuId ? parseInt(menuId) : 0,
+
                 menuName: document.getElementById("menuName").value.trim(),
+
+                menuCode: document.getElementById("menuCode").value.trim() || null,
+
                 link: document.getElementById("link").value.trim() || null,
+
                 icon: document.getElementById("icon").value.trim() || null,
+
                 displayOrder: parseInt(
                     document.getElementById("displayOrder").value || "0"
                 ),
+
                 parentMenuId:
-                    document.getElementById("parentMenuId").value || null,
+                    document.getElementById("parentMenuId").value
+                        ? parseInt(document.getElementById("parentMenuId").value)
+                        : null,
+
                 isActive:
                     document.getElementById("isActive").checked
             };
@@ -289,6 +300,10 @@
             clearForm();
             await loadMenus();
             await loadParentMenus();
+
+            if (window.refreshSidebar) {
+                window.refreshSidebar();
+            }
         }
         catch (error) {
             console.error(error);
@@ -311,6 +326,7 @@
 
             document.getElementById("menuId").value = x.menuId;
             document.getElementById("menuName").value = x.menuName ?? "";
+            document.getElementById("menuCode").value = x.menuCode ?? "";
             document.getElementById("link").value = x.link ?? "";
             document.getElementById("icon").value = x.icon ?? "";
             document.getElementById("displayOrder").value =

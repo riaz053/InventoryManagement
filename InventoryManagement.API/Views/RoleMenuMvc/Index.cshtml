@@ -127,7 +127,7 @@
                     // =========================
                     if (level3.length > 0) {
 
-                        html += `<div class="level-2">---▶ ${l2.menuName}</div>`;
+                        html += `<div class="level-2"> &nbsp;---▶ ${l2.menuName}</div>`;
 
                         level3.forEach(l3 => {
 
@@ -140,7 +140,7 @@
                                 html += `
                                 <div class="level-3">
 
-                                    <span>-------▶${l3.menuName}</span>
+                                    <span>   &nbsp;-------▶${l3.menuName}</span>
 
                                     <input type="checkbox"
                                         data-menuid="${l3.menuId}"
@@ -173,7 +173,7 @@
 
                             html += `
                                 <div class="level-2">
-                                 --▶${l2.menuName}
+                                  &nbsp;--▶${l2.menuName}
                                     <input type="checkbox"
                                         data-menuid="${l2.menuId}"
                                         onchange="toggleMenu(this)"
@@ -184,7 +184,7 @@
                             `;
                         }
                         else {
-                            html += `<div class="level-2">--▶ ${l2.menuName}</div>`;
+                            html += `<div class="level-2"> &nbsp;--▶ ${l2.menuName}</div>`;
                         }
                     }
                 });

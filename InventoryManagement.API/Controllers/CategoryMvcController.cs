@@ -6,6 +6,8 @@ namespace InventoryManagement.API.Controllers
     {
         public IActionResult Index()
         {
+            //return Content("Category MVC Working");//
+            Console.WriteLine("CategoryMvc Hit");
             return View();
         }
     }

@@ -10,46 +10,68 @@
 <div class="row">
 
     <!-- Role Form -->
-    <div class="col-md-4">
+    <div class="col-md-12">
         <div class="card p-3 shadow">
 
-            <h5>Role Entry</h5>
+            <h5 class="mb-3">Role Entry</h5>
 
             <input type="hidden" id="roleId" value="0" />
 
-            <div class="mb-3">
-                <label class="form-label">Role Code</label>
-                <input type="text" id="roleCode" class="form-control" disabled />
-                <label class="form-label">Role Name</label>
-                <input type="text" id="roleName" class="form-control" placeholder="Enter role name" />
-            </div>
+            <div class="row align-items-end g-3">
 
-            <div class="d-flex gap-2">
-                <button type="button" class="btn btn-primary flex-fill" onclick="createRole()">
-                    Create Role
-                </button>
+                <!-- Role Code -->
+                <div class="col-md-4">
+                    <label class="form-label">Role Code</label>
+                    <input type="text" id="roleCode" class="form-control" disabled />
+                </div>
 
-                <button type="button" class="btn btn-outline-info flex-fill" onclick="updateRole()">
-                    Update Role
-                </button>
+                <!-- Role Name -->
+                <div class="col-md-4">
+                    <label class="form-label">Role Name</label>
+                    <input type="text" id="roleName" class="form-control" placeholder="Enter role name" />
+                </div>
+
+                <!-- Buttons -->
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="button" class="btn btn-primary flex-fill" onclick="createRole()">
+                        Create
+                    </button>
+
+                    <button type="button" class="btn btn-outline-info flex-fill" onclick="updateRole()">
+                        Update
+                    </button>
+                </div>
+
             </div>
 
         </div>
     </div>
 
     <!-- Role List -->
-    <div class="col-md-8">
+    <div class="col-md-12">
         <div class="card p-3 shadow">
 
-            <h5>Role List</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="mb-0">Role List</h5>
+
+                <!-- RIGHT ALIGNED SEARCH -->
+                <div style="width: 250px;">
+                    <input type="text" id="roleSearch" class="form-control form-control-sm"
+                           placeholder="Search role name..." onkeyup="filterRoles()" />
+                </div>
+
+            </div>
 
             <table class="table table-bordered table-striped mt-2">
                 <thead>
                     <tr>
                         <th>Role Code</th>
                         <th>Role Name</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
+
                 <tbody id="roleTable"></tbody>
             </table>
 
@@ -63,6 +85,35 @@
         // ==========================
         // LOAD ROLES
         // ==========================
+        function filterRoles() {
+
+            const filter = document.getElementById("roleSearch")
+                .value.toLowerCase();
+
+            const table = document.getElementById("roleTable");
+            let rows = Array.from(table.querySelectorAll("tr"));
+
+            // 1. FILTER
+            rows.forEach(row => {
+
+                const roleName = row.children[1]?.textContent.toLowerCase() || "";
+
+                row.style.display = roleName.includes(filter) ? "" : "none";
+            });
+
+            // 2. SORT A-Z ALWAYS (visible rows only)
+            rows = rows.filter(r => r.style.display !== "none");
+
+            rows.sort((a, b) => {
+                const nameA = a.children[1].textContent.toLowerCase();
+                const nameB = b.children[1].textContent.toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
+
+            // re-append sorted rows
+            rows.forEach(row => table.appendChild(row));
+        }
+
         async function loadRoles() {
             try {
                 const res = await fetch('/api/RolesApi');
@@ -76,19 +127,43 @@
                 //console.log(data);
 
                 let html = '';
-
+                // onclick="selectRole(this)"
                 data.forEach(r => {
-                    html += `
-                                                        <tr onclick="selectRole(this)"
-                                                            data-id="${r.id}"
-                                                            data-code="${r.roleCode}"
-                                                            data-name="${r.roleName}">
-                                                            <td>${r.roleCode}</td>
-                                                            <td>${r.roleName}</td>
-                                                        </tr>`;
-                });
+                    html += `<tr>
+                                        <td>${r.roleCode}</td>
+                                        <td>${r.roleName}</td>
 
-                document.getElementById('roleTable').innerHTML = html;
+                                        <td>
+                                            <button class="btn btn-sm btn-warning"
+                                                    data-id="${r.id}"
+                                                    data-code="${r.roleCode}"
+                                                    data-name="${r.roleName}"
+                                                    onclick="selectRole(this)">
+                                                Edit
+                                            </button>
+                                        </td>
+                                    </tr>`;
+                });
+                //});
+
+                @* data.forEach(r => {
+                    html += `
+                <tr
+                data-id="${r.id}"
+                data-code="${r.roleCode}"
+                data-name="${r.roleName}">
+                <td>${r.roleCode}</td>
+                <td>${r.roleName}</td>
+                <td>
+                <button class="btn btn-xs btn-warning"
+                onclick="selectRole(this)">
+                Edit
+                </button>
+                </td>
+                </tr>`;
+                }); *@
+
+                    document.getElementById('roleTable').innerHTML = html;
             }
             catch (error) {
                 console.error(error);
@@ -99,12 +174,14 @@
         // ==========================
         // SELECT ROLE
         // ==========================
-        function selectRole(row) {
-            document.getElementById('roleId').value = row.dataset.id;
-            document.getElementById('roleCode').value = row.dataset.code;
-            document.getElementById('roleName').value = row.dataset.name;
+        function selectRole(btn) {
+
+            document.getElementById('roleId').value = btn.dataset.id || "";
+            document.getElementById('roleCode').value = btn.dataset.code || "";
+            document.getElementById('roleName').value = btn.dataset.name || "";
         }
 
+        
         // ==========================
         // CLEAR FORM
         // ==========================

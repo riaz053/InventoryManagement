@@ -5,6 +5,10 @@
       "PackagePath": "staticwebassets\\css\\site.css"
     },
     {
+      "Id": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\js\\sidebar.js",
+      "PackagePath": "staticwebassets\\js\\sidebar.js"
+    },
+    {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.InventoryManagement.API.Microsoft.AspNetCore.StaticWebAssets.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
     },

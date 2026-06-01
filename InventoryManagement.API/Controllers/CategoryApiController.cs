@@ -42,17 +42,19 @@ namespace InventoryManagement.API.Controllers
         public async Task<IActionResult> Create([FromBody] Category model)
         {
             if (string.IsNullOrWhiteSpace(model.catName))
-            {
                 return BadRequest(new { message = "Category name is required" });
-            }
 
-            // 1. Save first to generate Id
+            // ✅ CHECK DUPLICATE
+            bool exists = await _context.Categories
+                .AnyAsync(x => x.catName.ToLower() == model.catName.ToLower());
+
+            if (exists)
+                return BadRequest(new { message = "Category already exists" });
+
             _context.Categories.Add(model);
             await _context.SaveChangesAsync();
 
-            // 2. Generate code
             model.catCode = $"CAT-{model.Id:D7}";
-
             await _context.SaveChangesAsync();
 
             return Ok(new
@@ -72,16 +74,21 @@ namespace InventoryManagement.API.Controllers
             var data = await _context.Categories.FindAsync(model.Id);
 
             if (data == null)
-            {
                 return NotFound(new { message = "Category not found" });
-            }
 
             if (string.IsNullOrWhiteSpace(model.catName))
-            {
                 return BadRequest(new { message = "Category name is required" });
-            }
 
-            // ONLY editable field
+            // ✅ CHECK DUPLICATE (exclude current record)
+            bool exists = await _context.Categories
+                .AnyAsync(x =>
+                    x.Id != model.Id &&
+                    x.catName.ToLower() == model.catName.ToLower()
+                );
+
+            if (exists)
+                return BadRequest(new { message = "Category already exists" });
+
             data.catName = model.catName;
 
             await _context.SaveChangesAsync();

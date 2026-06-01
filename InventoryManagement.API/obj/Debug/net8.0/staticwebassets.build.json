@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "XifBPx5GX4vbqyqFnpQrtLc5gQYBdZgJvouZuom49qg=",
+  "Hash": "FduGucDRtkqIX6LqstUFJRdQspVZ/OQhDmJQCmX4zxc=",
   "Source": "InventoryManagement.API",
   "BasePath": "_content/InventoryManagement.API",
   "Mode": "Default",
@@ -34,6 +34,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
+    },
+    {
+      "Identity": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\js\\sidebar.js",
+      "SourceId": "InventoryManagement.API",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\",
+      "BasePath": "_content/InventoryManagement.API",
+      "RelativePath": "js/sidebar.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\sidebar.js"
     }
   ]
 }

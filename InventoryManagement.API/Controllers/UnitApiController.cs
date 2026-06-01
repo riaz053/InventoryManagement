@@ -36,17 +36,19 @@ namespace InventoryManagement.API.Controllers
         public async Task<IActionResult> Create(Units model)
         {
             if (string.IsNullOrWhiteSpace(model.unitName))
-            {
                 return BadRequest(new { message = "Unit name is required" });
-            }
 
-            // 1. Save first to generate Id
+            // ✅ CHECK DUPLICATE
+            bool exists = await _context.Units
+                .AnyAsync(x => x.unitName.ToLower() == model.unitName.ToLower());
+
+            if (exists)
+                return BadRequest(new { message = "Unit already exists" });
+
             _context.Units.Add(model);
             await _context.SaveChangesAsync();
 
-            // 2. Generate code
             model.unitCode = $"UN-{model.Id:D7}";
-
             await _context.SaveChangesAsync();
 
             return Ok(new
@@ -63,14 +65,20 @@ namespace InventoryManagement.API.Controllers
             var data = await _context.Units.FindAsync(model.Id);
 
             if (data == null)
-            {
                 return NotFound(new { message = "Unit not found" });
-            }
 
             if (string.IsNullOrWhiteSpace(model.unitName))
-            {
                 return BadRequest(new { message = "Unit name is required" });
-            }
+
+            // ✅ CHECK DUPLICATE (exclude current record)
+            bool exists = await _context.Units
+                .AnyAsync(x =>
+                    x.Id != model.Id &&
+                    x.unitName.ToLower() == model.unitName.ToLower()
+                );
+
+            if (exists)
+                return BadRequest(new { message = "Unit already exists" });
 
             // ONLY editable field
             data.unitName = model.unitName;

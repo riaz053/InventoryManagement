@@ -28,9 +28,13 @@ namespace InventoryManagement.API.Data
             base.OnModelCreating(modelBuilder);
 
 
+            modelBuilder.Entity<Category>()
+                .HasIndex(x => x.catName)
+                .IsUnique();
 
-            modelBuilder.Entity<UserRoles>();
-
+            modelBuilder.Entity<Units>()
+                .HasIndex(x => x.unitName)
+                .IsUnique();
             // =============================
             // USER - ROLE RELATIONSHIP
             // =============================
@@ -38,12 +42,19 @@ namespace InventoryManagement.API.Data
             modelBuilder.Entity<UserRoles>()
                 .HasOne(ur => ur.User)
                 .WithMany(u => u.UserRoles)
-                .HasForeignKey(ur => ur.UserId);
+                .HasForeignKey(ur => ur.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserRoles>()
                 .HasOne(ur => ur.Role)
                 .WithMany(r => r.UserRoles)
-                .HasForeignKey(ur => ur.RoleId);
+                .HasForeignKey(ur => ur.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            // =============================
+            // MENU - PARENT CHILD (NESTED MENU)
+            // =============================
 
             modelBuilder.Entity<Menu>()
                 .HasOne(m => m.ParentMenu)
@@ -53,21 +64,43 @@ namespace InventoryManagement.API.Data
 
 
             // =============================
+            // ROLE - MENU (MANY TO MANY)
+            // =============================
+
+            modelBuilder.Entity<RoleMenu>()
+                .HasKey(x => new { x.RoleId, x.MenuId });
+
+            modelBuilder.Entity<RoleMenu>()
+                .HasOne(rm => rm.Role)
+                .WithMany(r => r.RoleMenus)
+                .HasForeignKey(rm => rm.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RoleMenu>()
+                .HasOne(rm => rm.Menu)
+                .WithMany(m => m.RoleMenus)
+                .HasForeignKey(rm => rm.MenuId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            // =============================
             // PRODUCT BUSINESS RULES
             // =============================
 
-            // Unique Product Code (auto generated PRD-00000001)
+            // Unique Product Code
             modelBuilder.Entity<Product>()
                 .HasIndex(p => p.ProductCode)
                 .IsUnique();
 
-            // Business Rule:
-            // Same ProductName cannot repeat under same Unit
+            // Unique Product Name per Unit
             modelBuilder.Entity<Product>()
                 .HasIndex(p => new { p.ProductName, p.UnitId })
                 .IsUnique();
 
-            // Optional: improve FK behavior
+            // =============================
+            // PRODUCT RELATIONSHIPS
+            // =============================
+
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
                 .WithMany()
@@ -79,9 +112,7 @@ namespace InventoryManagement.API.Data
                 .WithMany()
                 .HasForeignKey(p => p.UnitId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<RoleMenu>()
-                .HasKey(x => new { x.RoleId, x.MenuId });
         }
+
     }
 }
