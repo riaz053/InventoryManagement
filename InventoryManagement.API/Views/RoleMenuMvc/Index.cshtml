@@ -23,7 +23,7 @@
 </div>
 <script>
     let roleIdGlobal = 0;
-
+    let assignedMenus = new Set();
     // =========================
     // LOAD ROLES
     // =========================
@@ -47,174 +47,96 @@
     async function loadMenusonChange() {
 
         const roleId = document.getElementById("roleId").value;
-        const container = document.getElementById("menuTree");
 
-        // ✅ NO ROLE → reload full menu
-        if (!roleId || roleId === "0") {
-            loadMenus();
+        if (!roleId) {
+            assignedMenus = new Set();
+            await loadMenus();
             return;
         }
 
-        // 🔥 START ANIMATION (fade out)
-        container.classList.add("menu-fade-out", "menu-loading");
+        const res = await fetch(`/api/RoleMenuApi/by-role/${roleId}`);
+        const data = await res.json();
 
-        // small delay to allow fade effect
-        await new Promise(r => setTimeout(r, 150));
+        assignedMenus = new Set(data);
 
-        const r = await fetch(`/api/RoleMenuApi/role/${roleId}`);
-        const roleData = await r.json();
-
-        const assignedMenus = new Set(roleData.map(x => Number(x)));
-
-        // RESET ALL CHECKBOXES (no UI rebuild)
-        const checkboxes = container.querySelectorAll("input[type='checkbox']");
-
-        checkboxes.forEach(cb => {
-            cb.checked = false;
-        });
-
-        // APPLY CHECKS
-        checkboxes.forEach(cb => {
-            const id = Number(cb.dataset.menuid);
-            if (assignedMenus.has(id)) {
-                cb.checked = true;
-            }
-        });
-
-        // 🔥 FADE IN BACK
-        container.classList.remove("menu-fade-out");
-        container.classList.add("menu-fade-in");
-
-        // remove loading lock
-        setTimeout(() => {
-            container.classList.remove("menu-loading");
-        }, 200);
+        // ONLY UPDATE CHECKBOXES (NO REBUILD)
+        document.querySelectorAll("#menuTree input[type='checkbox']")
+            .forEach(cb => {
+                const id = parseInt(cb.dataset.menuid);
+                cb.checked = assignedMenus.has(id);
+            });
     }
 
     async function loadMenus() {
 
-        showLoader(); // 🔥 START LOADER
+        showLoader();
 
         try {
-            const roleId = document.getElementById("roleId").value;
-            roleIdGlobal = roleId;
 
-            // 1. LOAD ALL MENUS
             const res = await fetch(`/api/Menu`);
             const allMenus = await res.json();
 
-            // 2. LOAD ASSIGNED MENUS
-            let assignedMenus = [];
-
             let html = "";
 
-            // LEVEL 1
             const level1 = allMenus.filter(x => x.parentMenuId === null);
 
             level1.forEach(l1 => {
 
                 html += `<div class="level-1">▶ ${l1.menuName}</div>`;
 
-                // LEVEL 2
                 const level2 = allMenus.filter(x => x.parentMenuId === l1.menuId);
 
                 level2.forEach(l2 => {
 
                     const level3 = allMenus.filter(x => x.parentMenuId === l2.menuId);
 
-                    // =========================
-                    // CASE 1: HAS CHILDREN
-                    // =========================
                     if (level3.length > 0) {
 
-                        html += `<div class="level-2"> &nbsp;---▶ ${l2.menuName}</div>`;
+                        html += `<div class="level-2">&nbsp;---▶ ${l2.menuName}</div>`;
 
                         level3.forEach(l3 => {
 
                             const hasLink = l3.link && l3.link.trim() !== "";
 
-                            if (hasLink) {
-
-                                const checked = assignedMenus.includes(l3.menuId);
-
-                                html += `
-                                <div class="level-3">
-
-                                    <span>   &nbsp;-------▶${l3.menuName}</span>
-
-                                    <input type="checkbox"
-                                        data-menuid="${l3.menuId}"
-                                        onchange="toggleMenu(this)"
-                                        ${checked ? "checked" : ""} />
-
-                                </div>
-                            `;
-                            }
-                            else {
-                                html += `
+                            html += `
                             <div class="level-3">
-                                ${l2.menuName}
+                                <span>&nbsp;-------▶ ${l3.menuName}</span>
+
+                                ${hasLink ? `
+                                    <input type="checkbox"
+                                        class="menu-checkbox"
+                                        data-menuid="${l3.menuId}" />
+                                    
+                                ` : ""}
                             </div>
                         `;
-                            }
                         });
-                    }
 
-                    // =========================
-                    // CASE 2: NO CHILDREN (LEAF)
-                    // =========================
-                    else {
+                    } else {
 
                         const hasLink = l2.link && l2.link.trim() !== "";
 
-                        if (hasLink) {
+                        html += `
+                        <div class="level-2">
+                            &nbsp;--▶ ${l2.menuName}
 
-                            const checked = assignedMenus.includes(l2.menuId);
-
-                            html += `
-                                <div class="level-2">
-                                  &nbsp;--▶${l2.menuName}
-                                    <input type="checkbox"
-                                        data-menuid="${l2.menuId}"
-                                        onchange="toggleMenu(this)"
-                                        ${checked ? "checked" : ""} />
-
-                                   
-                                </div>
-                            `;
-                        }
-                        else {
-                            html += `<div class="level-2"> &nbsp;--▶ ${l2.menuName}</div>`;
-                        }
+                            ${hasLink ? `
+                                <input type="checkbox"
+                                        class="menu-checkbox"
+                                        data-menuid="${l2.menuId}" />
+                               
+                            ` : ""}
+                        </div>
+                    `;
                     }
                 });
             });
 
             document.getElementById("menuTree").innerHTML = html;
+
         } finally {
-            hideLoader(); // 🔥 ALWAYS STOP LOADER
+            hideLoader();
         }
-    }
-
-
-    // =========================
-    // TOGGLE (CHECK / UNCHECK)
-    // =========================
-    async function toggleMenu(cb) {
-
-        const menuId = parseInt(cb.dataset.menuid);
-        const roleId = parseInt(document.getElementById("roleId").value);
-
-        await fetch("/api/RoleMenuApi/toggle", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                roleId: roleId,
-                menuId: menuId
-            })
-        });
     }
 
     document.addEventListener("DOMContentLoaded", function () {

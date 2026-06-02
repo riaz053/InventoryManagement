@@ -188,8 +188,6 @@ namespace InventoryManagement.API.Controllers
         // =========================================
         // 🔥 ROLE BASED MENU (JWT)
         // =========================================
-
-        //[Authorize]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("by-role")]
         public async Task<IActionResult> GetMenusByRole()
@@ -207,48 +205,61 @@ namespace InventoryManagement.API.Controllers
             if (roleId == 0)
                 return Ok("RoleId not found");
 
-            var menuIds = await _context.RoleMenus
+            // 1. Assigned menu IDs
+            var assignedMenuIds = await _context.RoleMenus
                 .Where(rm => rm.RoleId == roleId)
                 .Select(rm => rm.MenuId)
                 .ToListAsync();
 
-            if (!menuIds.Any())
+            if (!assignedMenuIds.Any())
                 return Ok("No menus assigned to this role");
 
+            // 2. Load ALL active menus (IMPORTANT)
             var allMenus = await _context.Menus
-                .Where(m => menuIds.Contains(m.MenuId) || m.IsActive)
+                .Where(m => m.IsActive)
                 .Select(m => new MenuTreeDto
                 {
                     MenuId = m.MenuId,
                     MenuName = m.MenuName,
-                    Link = !string.IsNullOrWhiteSpace(m.Link) ? m.Link + "/Index" : null,
+                    Link = !string.IsNullOrWhiteSpace(m.Link)
+                        ? m.Link + "/Index"
+                        : null,
                     Icon = m.Icon,
                     ParentMenuId = m.ParentMenuId,
                     Children = new List<MenuTreeDto>()
                 })
                 .ToListAsync();
 
+            // 3. Build required set (assigned + all parents)
+            var requiredIds = new HashSet<int>(assignedMenuIds);
 
-            var menus = await _context.Menus
-                .Where(m => menuIds.Contains(m.MenuId) && m.IsActive)
-                .Select(m => new MenuTreeDto
-                {
-                    MenuId = m.MenuId,
-                    MenuName = m.MenuName,
-                    Link = !string.IsNullOrWhiteSpace(m.Link) ? m.Link + "/Index" : null,
-                    Icon = m.Icon,
-                    ParentMenuId = m.ParentMenuId,
-                    Children = new List<MenuTreeDto>()
-                })
-                .ToListAsync();
-
-            var lookup = allMenus.ToDictionary(x => x.MenuId);
-
-            List<MenuTreeDto> roots = new List<MenuTreeDto>();
-
-            foreach (var menu in allMenus)
+            foreach (var id in assignedMenuIds)
             {
-                if (menu.ParentMenuId != null && lookup.ContainsKey(menu.ParentMenuId.Value))
+                var current = allMenus.FirstOrDefault(x => x.MenuId == id);
+
+                while (current?.ParentMenuId != null)
+                {
+                    requiredIds.Add(current.ParentMenuId.Value);
+
+                    current = allMenus.FirstOrDefault(x =>
+                        x.MenuId == current.ParentMenuId.Value);
+                }
+            }
+
+            // 4. Filter final menus
+            var filteredMenus = allMenus
+                .Where(x => requiredIds.Contains(x.MenuId))
+                .ToList();
+
+            // 5. Build lookup
+            var lookup = filteredMenus.ToDictionary(x => x.MenuId);
+
+            List<MenuTreeDto> roots = new();
+
+            foreach (var menu in filteredMenus)
+            {
+                if (menu.ParentMenuId != null &&
+                    lookup.ContainsKey(menu.ParentMenuId.Value))
                 {
                     lookup[menu.ParentMenuId.Value].Children.Add(menu);
                 }
@@ -259,21 +270,95 @@ namespace InventoryManagement.API.Controllers
             }
 
             return Ok(roots);
-
         }
+        //[Authorize]
+        // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        // [HttpGet("by-role")]
+        // public async Task<IActionResult> GetMenusByRole()
+        // {
+        //     var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+        //     if (string.IsNullOrEmpty(role))
+        //         return Unauthorized("Role not found in token");
+
+        //     var roleId = await _context.Roles
+        //         .Where(r => r.RoleName.Trim().ToLower() == role.Trim().ToLower())
+        //         .Select(r => r.Id)
+        //         .FirstOrDefaultAsync();
+
+        //     if (roleId == 0)
+        //         return Ok("RoleId not found");
+
+        //     var menuIds = await _context.RoleMenus
+        //         .Where(rm => rm.RoleId == roleId)
+        //         .Select(rm => rm.MenuId)
+        //         .ToListAsync();
+
+        //     if (!menuIds.Any())
+        //         return Ok("No menus assigned to this role");
+
+        //     var allMenus = await _context.Menus
+        //         .Where(m => menuIds.Contains(m.MenuId) && m.IsActive)
+        //         .Select(m => new MenuTreeDto
+        //         {
+        //             MenuId = m.MenuId,
+        //             MenuName = m.MenuName,
+        //             Link = !string.IsNullOrWhiteSpace(m.Link) ? m.Link + "/Index" : null,
+        //             Icon = m.Icon,
+        //             ParentMenuId = m.ParentMenuId,
+        //             Children = new List<MenuTreeDto>()
+        //         })
+        //         .ToListAsync();
 
 
-        private void BuildTree(MenuTreeDto parent, List<MenuTreeDto> allMenus)
-        {
-            parent.Children = allMenus
-                .Where(x => x.ParentMenuId == parent.MenuId)
-                .ToList();
+        //     var menus = await _context.Menus
+        //         .Where(m => menuIds.Contains(m.MenuId) && m.IsActive)
+        //         .Select(m => new MenuTreeDto
+        //         {
+        //             MenuId = m.MenuId,
+        //             MenuName = m.MenuName,
+        //             Link = !string.IsNullOrWhiteSpace(m.Link) ? m.Link + "/Index" : null,
+        //             Icon = m.Icon,
+        //             ParentMenuId = m.ParentMenuId,
+        //             Children = new List<MenuTreeDto>()
+        //         })
+        //         .ToListAsync();
 
-            foreach (var child in parent.Children)
-            {
-                BuildTree(child, allMenus);
-            }
-        }
+        //     // var lookup = allMenus.ToDictionary(x => x.MenuId);
+        //     var lookup = menus.ToDictionary(x => x.MenuId);
+
+        //     List<MenuTreeDto> roots = new List<MenuTreeDto>();
+
+        //     //foreach (var menu in menus)
+
+        //     foreach (var menu in menus)
+        //     {
+        //         if (menu.ParentMenuId != null && lookup.ContainsKey(menu.ParentMenuId.Value))
+        //         {
+        //             lookup[menu.ParentMenuId.Value].Children.Add(menu);
+        //         }
+        //         else
+        //         {
+        //             roots.Add(menu);
+        //         }
+        //     }
+
+        //     return Ok(roots);
+
+        // }
+
+
+        // private void BuildTree(MenuTreeDto parent, List<MenuTreeDto> allMenus)
+        // {
+        //     parent.Children = allMenus
+        //         .Where(x => x.ParentMenuId == parent.MenuId)
+        //         .ToList();
+
+        //     foreach (var child in parent.Children)
+        //     {
+        //         BuildTree(child, allMenus);
+        //     }
+        // }
 
         // =========================================
         // TREE BUILDER

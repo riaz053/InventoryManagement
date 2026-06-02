@@ -12,86 +12,27 @@
     <h3>Menu Management</h3>
 
     <div class="row mt-3">
-
-        <!-- FORM -->
-        <div class="col-md-3">
+        <div class="col-md-12">
             <div class="card shadow-sm">
                 <div class="card-body">
 
-                    <input type="hidden" id="menuId" />
-                    <input type="hidden" id="menuCode" />
-
-                    <div class="mb-3">
-                        <label class="form-label">Menu Name <span class="text-danger">*</span></label>
-                        <input type="text" id="menuName" class="form-control" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Link</label>
-                        <input type="text" id="link" class="form-control"
-                               placeholder="Leave blank if this is a group/folder menu." />
-
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Icon</label>
-                        <input type="text" id="icon" class="form-control" placeholder="fa fa-users" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Display Order</label>
-                        <input type="number" id="displayOrder" class="form-control" value="0" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Parent Menu</label>
-                        <select id="parentMenuId" class="form-select">
-                            <option value="">-- None --</option>
-                        </select>
-                    </div>
-
-                    <div class="form-check mb-3">
-                        <input type="checkbox" id="isActive" class="form-check-input" checked />
-                        <label class="form-check-label">
-                            Active
-                        </label>
-                    </div>
-
-                    <button type="button" class="btn btn-primary w-100" onclick="saveMenu()">
-                        Save
-                    </button>
-
-                    <button type="button" class="btn btn-secondary w-100 mt-2" onclick="clearForm()">
-                        Clear
-                    </button>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="col-md-9">
-            <div class="card shadow-sm">
-                <div class="card-body">
-
-                    <!-- Header Row -->
                     <div class="d-flex justify-content-between align-items-center mb-3">
+
                         <h5 class="mb-0">Menu List</h5>
 
-                        <div class="d-flex align-items-center">
-                            <label for="menuTypeFilter" class="me-2 mb-0 fw-bold">
-                                Filter:
-                            </label>
+                        <div class="d-flex gap-2">
 
-                            <select id="menuTypeFilter" class="form-select form-select-sm" style="width: 180px;"
-                                    onchange="loadMenus()">
-                                <option value="">All Menus</option>
-                                <option value="parent">Only Parent</option>
-                                <option value="child">Only Child</option>
-                            </select>
+                            <input type="text" id="searchMenu" class="form-control" placeholder="Search menu..."
+                                   style="width:250px;" onkeyup="filterMenus()" />
+
+                            <button class="btn btn-primary" onclick="openAddMenuModal()">
+                                Add Menu
+                            </button>
+
                         </div>
+
                     </div>
 
-                    <!-- Table -->
                     <table class="table table-bordered table-hover table-sm">
                         <thead class="table-light">
                             <tr>
@@ -115,6 +56,109 @@
     </div>
 </div>
 
+<div class="modal fade" id="menuModal" tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Menu Entry</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <input type="hidden" id="menuId" />
+                <input type="hidden" id="menuCode" />
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            Menu Name
+                        </label>
+
+                        <input type="text" id="menuName" class="form-control" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            Link
+                        </label>
+
+                        <input type="text" id="link" class="form-control" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            Icon
+                        </label>
+
+                        <input type="text" id="icon" class="form-control" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            Display Order
+                        </label>
+
+                        <input type="number" id="displayOrder" class="form-control" value="0" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            Parent Menu
+                        </label>
+
+                        <select id="parentMenuId" class="form-select">
+                            <option value="">
+                                -- None --
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3 d-flex align-items-center">
+
+                        <div class="form-check mt-4">
+
+                            <input type="checkbox" id="isActive" class="form-check-input" checked />
+
+                            <label class="form-check-label">
+                                Active
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+
+                <button class="btn btn-primary" onclick="saveMenu()">
+                    Save
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
 <script>
     const apiUrl = "/api/Menu";
 
@@ -133,6 +177,8 @@
         try {
             const res = await fetch(apiUrl);
 
+            console.log(res);
+
             if (!res.ok) {
                 throw new Error("Failed to load menus.");
             }
@@ -143,7 +189,7 @@
             data.sort((a, b) => a.displayOrder - b.displayOrder);
 
             // Read selected filter
-            const filter = document.getElementById("menuTypeFilter").value;
+            const filter = "";//document.getElementById("menuTypeFilter").value;
 
             if (filter === "parent") {
                 data = data.filter(x =>
@@ -175,11 +221,11 @@
                     <td>
                         <button class="btn btn-xs btn-warning"
                                 onclick="editMenu(${x.menuId})">
-                            Edit
+                            <i class="fa-solid fa-pen-to-square"></i>
                         </button>
                         <button class="btn btn-xs btn-danger"
                                 onclick="deleteMenu(${x.menuId})">
-                            Disable
+                            <i class="fa fa-ban" aria-hidden="true"></i>
                         </button>
                     </td>
                 </tr>
@@ -295,7 +341,13 @@
                 return;
             }
 
-            alert(result.message);
+            @* alert(result.message); *@
+
+                bootstrap.Modal
+                    .getInstance(
+                        document.getElementById("menuModal")
+                    )
+                    ?.hide();
 
             clearForm();
             await loadMenus();
@@ -340,6 +392,13 @@
             console.error(error);
             alert("Failed to load menu for editing.");
         }
+
+        const modal =
+            new bootstrap.Modal(
+                document.getElementById("menuModal")
+            );
+
+        modal.show();
     }
 
     // =========================
@@ -384,6 +443,43 @@
         document.getElementById("parentMenuId").value = "";
         document.getElementById("isActive").checked = true;
     }
+
+    function openAddMenuModal() {
+
+        clearForm();
+
+        loadParentMenus();
+
+        const modal =
+            new bootstrap.Modal(
+                document.getElementById("menuModal")
+            );
+
+        modal.show();
+    }
+
+    function filterMenus() {
+
+        const keyword =
+            document.getElementById("searchMenu")
+                .value
+                .toLowerCase();
+
+        const rows =
+            document.querySelectorAll("#menuTable tr");
+
+        rows.forEach(row => {
+
+            row.style.display =
+                row.innerText
+                    .toLowerCase()
+                    .includes(keyword)
+                    ? ""
+                    : "none";
+        });
+    }
+
+
 
 
 </script>

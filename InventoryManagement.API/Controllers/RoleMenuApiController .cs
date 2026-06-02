@@ -31,12 +31,28 @@ namespace InventoryManagement.API.Controllers
             return Ok(menuIds);
         }
 
+        [HttpGet("by-role/{roleId}")]
+        public async Task<IActionResult> GetByRole(int roleId)
+        {
+            if (roleId <= 0)
+                return BadRequest("Invalid RoleId");
+
+            var menuIds = await _context.RoleMenus
+                .Where(x => x.RoleId == roleId)
+                .Select(x => x.MenuId)
+                .ToListAsync();
+
+            return Ok(menuIds);
+        }
         // ==============================
         // TOGGLE ROLE MENU (CHECKBOX)
         // ==============================
         [HttpPost("toggle")]
         public async Task<IActionResult> Toggle(RoleMenuDto dto)
         {
+            if (dto.RoleId <= 0 || dto.MenuId <= 0)
+                return BadRequest("Invalid RoleId or MenuId");
+
             var exists = await _context.RoleMenus
                 .FirstOrDefaultAsync(x =>
                     x.RoleId == dto.RoleId &&
@@ -57,10 +73,36 @@ namespace InventoryManagement.API.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok(new
-            {
-                message = "Updated successfully"
-            });
+            return Ok(new { message = "Updated successfully" });
         }
+
+        // [HttpPost("toggle")]
+        // public async Task<IActionResult> Toggle(RoleMenuDto dto)
+        // {
+        //     var exists = await _context.RoleMenus
+        //         .FirstOrDefaultAsync(x =>
+        //             x.RoleId == dto.RoleId &&
+        //             x.MenuId == dto.MenuId);
+
+        //     if (exists == null)
+        //     {
+        //         _context.RoleMenus.Add(new RoleMenu
+        //         {
+        //             RoleId = dto.RoleId,
+        //             MenuId = dto.MenuId
+        //         });
+        //     }
+        //     else
+        //     {
+        //         _context.RoleMenus.Remove(exists);
+        //     }
+
+        //     await _context.SaveChangesAsync();
+
+        //     return Ok(new
+        //     {
+        //         message = "Updated successfully"
+        //     });
+        // }
     }
 }
