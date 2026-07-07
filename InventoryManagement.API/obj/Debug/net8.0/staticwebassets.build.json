@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "FduGucDRtkqIX6LqstUFJRdQspVZ/OQhDmJQCmX4zxc=",
+  "Hash": "/LsD+Ctm+e5IF2g8Q+FIjK9bZJeuI0QQXjMAg8oplw8=",
   "Source": "InventoryManagement.API",
   "BasePath": "_content/InventoryManagement.API",
   "Mode": "Default",
@@ -10,17 +10,17 @@
     {
       "Name": "InventoryManagement.API\\wwwroot",
       "Source": "InventoryManagement.API",
-      "ContentRoot": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\",
+      "ContentRoot": "E:\\InventoryApp\\inventorymanagement.api\\wwwroot\\",
       "BasePath": "_content/InventoryManagement.API",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\css\\site.css",
+      "Identity": "E:\\InventoryApp\\inventorymanagement.api\\wwwroot\\css\\site.css",
       "SourceId": "InventoryManagement.API",
       "SourceType": "Discovered",
-      "ContentRoot": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\",
+      "ContentRoot": "E:\\InventoryApp\\inventorymanagement.api\\wwwroot\\",
       "BasePath": "_content/InventoryManagement.API",
       "RelativePath": "css/site.css",
       "AssetKind": "All",
@@ -36,10 +36,10 @@
       "OriginalItemSpec": "wwwroot\\css\\site.css"
     },
     {
-      "Identity": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\js\\sidebar.js",
+      "Identity": "E:\\InventoryApp\\inventorymanagement.api\\wwwroot\\js\\sidebar.js",
       "SourceId": "InventoryManagement.API",
       "SourceType": "Discovered",
-      "ContentRoot": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\",
+      "ContentRoot": "E:\\InventoryApp\\inventorymanagement.api\\wwwroot\\",
       "BasePath": "_content/InventoryManagement.API",
       "RelativePath": "js/sidebar.js",
       "AssetKind": "All",

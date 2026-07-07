@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ZjoTwm5qk7Q=",
+  "dgSpecHash": "RiIF1ifFlLE=",
   "success": true,
-  "projectFilePath": "E:\\InventoryApp\\InventoryManagement.API\\InventoryManagement.API.csproj",
+  "projectFilePath": "E:\\InventoryApp\\inventorymanagement.api\\InventoryManagement.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\saleh.riaz\\.nuget\\packages\\automapper\\12.0.0\\automapper.12.0.0.nupkg.sha512",
     "C:\\Users\\saleh.riaz\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.0\\automapper.extensions.microsoft.dependencyinjection.12.0.0.nupkg.sha512",
