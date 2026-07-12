@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\InventoryApp\\inventorymanagement.api\\InventoryManagement.API.csproj": {}
+    "E:\\InventoryApp\\InventoryManagement.API\\InventoryManagement.API.csproj": {}
   },
   "projects": {
-    "E:\\InventoryApp\\inventorymanagement.api\\InventoryManagement.API.csproj": {
+    "E:\\InventoryApp\\InventoryManagement.API\\InventoryManagement.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\InventoryApp\\inventorymanagement.api\\InventoryManagement.API.csproj",
+        "projectUniqueName": "E:\\InventoryApp\\InventoryManagement.API\\InventoryManagement.API.csproj",
         "projectName": "InventoryManagement.API",
-        "projectPath": "E:\\InventoryApp\\inventorymanagement.api\\InventoryManagement.API.csproj",
+        "projectPath": "E:\\InventoryApp\\InventoryManagement.API\\InventoryManagement.API.csproj",
         "packagesPath": "C:\\Users\\saleh.riaz\\.nuget\\packages\\",
-        "outputPath": "E:\\InventoryApp\\inventorymanagement.api\\obj\\",
+        "outputPath": "E:\\InventoryApp\\InventoryManagement.API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\saleh.riaz\\AppData\\Roaming\\NuGet\\NuGet.Config"

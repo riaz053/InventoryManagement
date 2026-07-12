@@ -1,11 +1,11 @@
 {
   "Files": [
     {
-      "Id": "E:\\InventoryApp\\inventorymanagement.api\\wwwroot\\css\\site.css",
+      "Id": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },
     {
-      "Id": "E:\\InventoryApp\\inventorymanagement.api\\wwwroot\\js\\sidebar.js",
+      "Id": "E:\\InventoryApp\\InventoryManagement.API\\wwwroot\\js\\sidebar.js",
       "PackagePath": "staticwebassets\\js\\sidebar.js"
     },
     {

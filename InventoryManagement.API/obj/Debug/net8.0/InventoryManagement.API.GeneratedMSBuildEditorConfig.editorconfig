@@ -9,55 +9,55 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = InventoryManagement.API
 build_property.RootNamespace = InventoryManagement.API
-build_property.ProjectDir = E:\InventoryApp\inventorymanagement.api\
+build_property.ProjectDir = E:\InventoryApp\InventoryManagement.API\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = E:\InventoryApp\inventorymanagement.api
+build_property.MSBuildProjectDirectory = E:\InventoryApp\InventoryManagement.API
 build_property._RazorSourceGeneratorDebug = 
 
-[E:/InventoryApp/inventorymanagement.api/Views/Auth/Login.cshtml]
+[E:/InventoryApp/InventoryManagement.API/Views/Auth/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/InventoryApp/inventorymanagement.api/Views/CategoryMvc/Index.cshtml]
+[E:/InventoryApp/InventoryManagement.API/Views/CategoryMvc/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2F0ZWdvcnlNdmNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/InventoryApp/inventorymanagement.api/Views/Home/Index.cshtml]
+[E:/InventoryApp/InventoryManagement.API/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/InventoryApp/inventorymanagement.api/Views/MenuMvc/Index.cshtml]
+[E:/InventoryApp/InventoryManagement.API/Views/MenuMvc/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVudU12Y1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/InventoryApp/inventorymanagement.api/Views/PermissionMvc/Index.cshtml]
+[E:/InventoryApp/InventoryManagement.API/Views/PermissionMvc/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGVybWlzc2lvbk12Y1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/InventoryApp/inventorymanagement.api/Views/ProductMvc/Index.cshtml]
+[E:/InventoryApp/InventoryManagement.API/Views/ProductMvc/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdE12Y1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/InventoryApp/inventorymanagement.api/Views/RoleMenuMvc/Index.cshtml]
+[E:/InventoryApp/InventoryManagement.API/Views/RoleMenuMvc/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUm9sZU1lbnVNdmNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/InventoryApp/inventorymanagement.api/Views/RolesMvc/Index.cshtml]
+[E:/InventoryApp/InventoryManagement.API/Views/RolesMvc/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUm9sZXNNdmNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/InventoryApp/inventorymanagement.api/Views/Shared/_layout.cshtml]
+[E:/InventoryApp/InventoryManagement.API/Views/Shared/_layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9sYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/InventoryApp/inventorymanagement.api/Views/UnitMvc/Index.cshtml]
+[E:/InventoryApp/InventoryManagement.API/Views/UnitMvc/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVW5pdE12Y1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/InventoryApp/inventorymanagement.api/Views/UsersMvc/Index.cshtml]
+[E:/InventoryApp/InventoryManagement.API/Views/UsersMvc/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNNdmNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
